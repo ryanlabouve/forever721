@@ -36,3 +36,13 @@ npm run build
 ```
 
 > You can preview the built app with `npm run preview`, regardless of whether you installed an adapter. This should _not_ be used to serve your app in production.
+
+## Env vars
+
+`.envrc`
+
+https://etherscan.io/myapikey
+
+```
+export VITE_ETHERSCAN_KEY="datkey"
+```

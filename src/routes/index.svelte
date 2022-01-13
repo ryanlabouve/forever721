@@ -1,9 +1,74 @@
-<script context="module" lang="ts">
-	export const prerender = true;
-</script>
-
 <script lang="ts">
-	import Counter from '$lib/Counter.svelte';
+	import { ethers } from 'ethers';
+	import Web3Modal from 'web3modal';
+	import { onMount } from 'svelte';
+	import { env } from '$lib/constants';
+
+	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
+	let contractABI: string = '';
+	let isConnected: boolean = false;
+	let web3Modal;
+	let instance;
+	let provider;
+	let signer;
+
+	const providerOptions = {
+		/* See Provider Options Section */
+	};
+
+	onMount(() => {
+		web3Modal = new Web3Modal({
+			network: 'mainnet', // optional
+			cacheProvider: true, // optional
+			providerOptions // required
+		});
+
+		getABI();
+	});
+
+	async function getABI() {
+		let etherscanURL = `http://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${env.etherscanKey}`;
+		try {
+			let response = await fetch(etherscanURL);
+
+			if (!response.ok) {
+				throw 'Error calling etherscan';
+			}
+
+			let json = await response.json();
+			contractABI = json.result;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async function connectWallet() {
+		instance = await web3Modal.connect();
+		provider = new ethers.providers.Web3Provider(instance);
+
+		provider.on('connect', (p) => {
+			console.log(p);
+			isConnected = true;
+		});
+
+		provider.on('disconnect', (p) => {
+			console.log(p);
+			isConnected = false;
+		});
+
+		signer = provider.getSigner();
+
+		let lastBLockNumber = await provider.getBlockNumber();
+		let balance = await provider.getBalance('ryanlabouve.eth');
+
+		let contract = new ethers.Contract(contractAddress, contractABI, provider);
+		let uri = await contract.tokenURI(1); // 1 is just the id of dis token
+		debugger;
+	}
+	function debugModal() {
+		let a = web3Modal;
+		debugger;
+	}
 </script>
 
 <svelte:head>
@@ -11,49 +76,16 @@
 </svelte:head>
 
 <section>
-	<h1>
-		<div class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</div>
+	{#if isConnected === true}
+		IS CONNECTE
+	{:else}
+		NO IS CONNECT
+	{/if}
 
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
+	<input bind:value={contractAddress} />
+	<div>
+		{contractABI}
+	</div>
+	<button on:click={() => connectWallet()}> Connect Wallet and get tokenuri</button>
+	<button on:click={() => debugModal()}>Debug Modal</button>
 </section>
-
-<style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-	}
-
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
-</style>

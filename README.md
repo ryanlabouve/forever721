@@ -50,9 +50,9 @@ export VITE_ETHERSCAN_KEY="datkey"
 ## Tasks
 * Get collection of NFTs
 
-  * [ ] Connect wallet
-  * [ ] Get current Wallet address
-  * [ ] (Bonus) Get ENS for current address 
+  * [x] Connect wallet
+  * [x] Get current Wallet address
+  * [x] (Bonus) Get ENS for current address 
     ```js
       await provider.lookupAddress("0x5555763613a12D8F3e73be831DFf8598089d3dCa");
     ```

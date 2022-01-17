@@ -12,12 +12,14 @@
 	let instance;
 	let provider;
 	let signer;
+	let walletAddress: string;
+	let walletENSAddress: string;
 
 	const providerOptions = {
 		/* See Provider Options Section */
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		web3Modal = new Web3Modal({
 			network: 'mainnet', // optional
 			cacheProvider: true, // optional
@@ -44,17 +46,17 @@
 	}
 
 	async function connectWallet() {
+		console.log('connecting Wallet');
 		instance = await web3Modal.connect();
 		provider = new ethers.providers.Web3Provider(instance);
-
 		signer = provider.getSigner();
 
-		let lastBLockNumber = await provider.getBlockNumber();
-		let balance = await provider.getBalance('ryanlabouve.eth');
+		walletAddress = await signer.getAddress();
+		walletENSAddress = await provider.lookupAddress(walletAddress);
 
-		let contract = new ethers.Contract(contractAddress, contractABI, provider);
-		let uri = await contract.tokenURI(1); // 1 is just the id of dis token
-		debugger;
+		// let contract = new ethers.Contract(contractAddress, contractABI, provider);
+		// let uri = await contract.tokenURI(1); // 1 is just the id of dis token
+		console.log(walletAddress, walletENSAddress);
 	}
 
 	function debugModal() {
@@ -76,7 +78,7 @@
 				improve it.
 			</div>
 			<div>
-				<Button>Connect Wallet</Button>
+				<Button onClick={connectWallet}>Connect Wallet</Button>
 			</div>
 		</div>
 		<div>
@@ -105,7 +107,7 @@
 <div class="bg-pink-300 py-8">
 	<div class="max-w-3xl m-auto px-3 ">
 		<div class="text-2xl text-white">DEBUG</div>
-		<Button onClick={() => connectWallet()}>Connect Wallet and get tokenuri</Button>
+		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
 		<Button onClick={() => debugModal()}>Debug Modal</Button>
 	</div>
 </div>

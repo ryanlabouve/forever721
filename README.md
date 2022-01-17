@@ -46,3 +46,23 @@ https://etherscan.io/myapikey
 ```
 export VITE_ETHERSCAN_KEY="datkey"
 ```
+
+## Tasks
+* Get collection of NFTs
+
+  * [ ] Connect wallet
+  * [ ] Get current Wallet address
+  * [ ] (Bonus) Get ENS for current address 
+    ```js
+      await provider.lookupAddress("0x5555763613a12D8F3e73be831DFf8598089d3dCa");
+    ```
+  * [ ] Query opensea for NFTs on current address
+  * [ ] Make it pretty
+
+## Designs
+https://www.figma.com/file/KgKoOQtHUaCgBrSPzqV4wm/Untitled?node-id=3%3A104
+https://heroicons.dev/?query=lock
+https://3dtransforms.desandro.com/perspective
+https://fonts.google.com/specimen/Fira+Sans?query=fira+sans
+https://fonts.google.com/specimen/Fira+Sans+Extra+Condensed?query=conden
+https://tailwindcss.com/docs/customizing-colors

@@ -3,6 +3,7 @@
 	import Web3Modal from 'web3modal';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
+	import { user } from '$lib/stores/user';
 
 	import Button from '$lib/ui/button.svelte';
 
@@ -12,8 +13,6 @@
 	let instance;
 	let provider;
 	let signer;
-	let walletAddress: string;
-	let walletENSAddress: string;
 
 	const providerOptions = {
 		/* See Provider Options Section */
@@ -51,12 +50,29 @@
 		provider = new ethers.providers.Web3Provider(instance);
 		signer = provider.getSigner();
 
-		walletAddress = await signer.getAddress();
-		walletENSAddress = await provider.lookupAddress(walletAddress);
+		let walletAddress = await signer.getAddress();
+		let walletENSAddress = await provider.lookupAddress(walletAddress);
+
+		user.update(() => {
+			return {
+				walletAddress,
+				walletENSAddress
+			};
+		});
 
 		// let contract = new ethers.Contract(contractAddress, contractABI, provider);
 		// let uri = await contract.tokenURI(1); // 1 is just the id of dis token
 		console.log(walletAddress, walletENSAddress);
+	}
+
+	async function loadCollection() {
+		if (!$user.walletENSAddress) return;
+
+		let url = `https://api.opensea.io/api/v1/collections?asset_owner=${$user.walletAddress}&offset=0&limit=20`;
+		let resp = await fetch(url);
+		let json = await resp.json();
+		debugger;
+		let collection = json;
 	}
 
 	function debugModal() {
@@ -109,6 +125,7 @@
 		<div class="text-2xl text-white">DEBUG</div>
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
 		<Button onClick={() => debugModal()}>Debug Modal</Button>
+		<Button onClick={() => loadCollection()}>Load Collection</Button>
 	</div>
 </div>
 

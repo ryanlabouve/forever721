@@ -3,7 +3,7 @@
 	import '../app.css';
 </script>
 
-<div class="m-auto max-w-3xl">
+<div class="m-auto max-w-4xl">
 	<Header />
 </div>
 <main>

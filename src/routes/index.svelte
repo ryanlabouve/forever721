@@ -4,9 +4,10 @@
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 
+	import Button from '$lib/ui/button.svelte';
+
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
-	let isConnected: boolean = false;
 	let web3Modal;
 	let instance;
 	let provider;
@@ -23,7 +24,7 @@
 			providerOptions // required
 		});
 
-		getABI();
+		// getABI();
 	});
 
 	async function getABI() {
@@ -46,16 +47,6 @@
 		instance = await web3Modal.connect();
 		provider = new ethers.providers.Web3Provider(instance);
 
-		provider.on('connect', (p) => {
-			console.log(p);
-			isConnected = true;
-		});
-
-		provider.on('disconnect', (p) => {
-			console.log(p);
-			isConnected = false;
-		});
-
 		signer = provider.getSigner();
 
 		let lastBLockNumber = await provider.getBlockNumber();
@@ -65,6 +56,7 @@
 		let uri = await contract.tokenURI(1); // 1 is just the id of dis token
 		debugger;
 	}
+
 	function debugModal() {
 		let a = web3Modal;
 		debugger;
@@ -75,17 +67,11 @@
 	<title>Home</title>
 </svelte:head>
 
-<section>
-	{#if isConnected === true}
-		IS CONNECTE
-	{:else}
-		NO IS CONNECT
-	{/if}
-
-	<input bind:value={contractAddress} />
-	<div>
-		{contractABI}
+<div class="max-w-3xl m-auto px-3" />
+<div class="bg-pink-300 py-8">
+	<div class="max-w-3xl m-auto px-3 ">
+		<div class="text-2xl text-white">DEBUG</div>
+		<Button onClick={() => connectWallet()}>Connect Wallet and get tokenuri</Button>
+		<Button onClick={() => debugModal()}>Debug Modal</Button>
 	</div>
-	<button on:click={() => connectWallet()}> Connect Wallet and get tokenuri</button>
-	<button on:click={() => debugModal()}>Debug Modal</button>
-</section>
+</div>

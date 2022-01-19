@@ -113,6 +113,7 @@
 
 <div class="max-w-4xl m-auto px-3 my-8">
 	<div class="grid grid-cols-4 gap-4">
+		<!-- here's where it shows up-->
 		{#each dummyNftCollection as nft}
 			<NftThumbnail {...nft} />
 		{/each}

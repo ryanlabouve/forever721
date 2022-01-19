@@ -1,15 +1,13 @@
 <script lang="ts">
-	console.log($$props);
 	// TODO all of the avail props are logged out with $$props;
-
+	console.log($$props);
 	// if you want to properly export them you can do this
 	export let image_url;
 	export let created_date;
 	export let description;
-
-	// Everythign below this is just html
 </script>
 
+<!-- // Everythign below this is just html -->
 <div class="bg-gray-50 p-4 border">
 	<img src={image_url} />
 

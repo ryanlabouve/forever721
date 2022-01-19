@@ -1,3 +1,4 @@
+// This is just a sample payload form Opensea that we can use for designing
 export default [
   {
     "primary_asset_contracts": [

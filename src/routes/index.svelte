@@ -4,8 +4,11 @@
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
+	import dummyNftCollection from '$lib/dummyNftCollection';
+	import NftThumbnail from '$lib/nft-thumbnail.svelte';
 
 	import Button from '$lib/ui/button.svelte';
+	import About from './about.svelte';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
@@ -105,6 +108,14 @@
 				alt=" Bad hero"
 			/>
 		</div>
+	</div>
+</div>
+
+<div class="max-w-4xl m-auto px-3 my-8">
+	<div class="grid grid-cols-4 gap-4">
+		{#each dummyNftCollection as nft}
+			<NftThumbnail {...nft} />
+		{/each}
 	</div>
 </div>
 

@@ -56,7 +56,7 @@ export VITE_ETHERSCAN_KEY="datkey"
     ```js
       await provider.lookupAddress("0x5555763613a12D8F3e73be831DFf8598089d3dCa");
     ```
-  * [ ] Query opensea for NFTs on current address
+  * [x] Query opensea for NFTs on current address
   * [ ] Make it pretty
 
 ## Designs

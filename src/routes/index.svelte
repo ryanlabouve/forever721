@@ -3,8 +3,12 @@
 	import Web3Modal from 'web3modal';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
+	import { user } from '$lib/stores/user';
+	import dummyNftCollection from '$lib/dummyNftCollection';
+	import NftThumbnail from '$lib/nft-thumbnail.svelte';
 
 	import Button from '$lib/ui/button.svelte';
+	import About from './about.svelte';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
@@ -12,8 +16,6 @@
 	let instance;
 	let provider;
 	let signer;
-	let walletAddress: string;
-	let walletENSAddress: string;
 
 	const providerOptions = {
 		/* See Provider Options Section */
@@ -51,12 +53,29 @@
 		provider = new ethers.providers.Web3Provider(instance);
 		signer = provider.getSigner();
 
-		walletAddress = await signer.getAddress();
-		walletENSAddress = await provider.lookupAddress(walletAddress);
+		let walletAddress = await signer.getAddress();
+		let walletENSAddress = await provider.lookupAddress(walletAddress);
+
+		user.update(() => {
+			return {
+				walletAddress,
+				walletENSAddress
+			};
+		});
 
 		// let contract = new ethers.Contract(contractAddress, contractABI, provider);
 		// let uri = await contract.tokenURI(1); // 1 is just the id of dis token
 		console.log(walletAddress, walletENSAddress);
+	}
+
+	async function loadCollection() {
+		if (!$user.walletENSAddress) return;
+
+		let url = `https://api.opensea.io/api/v1/collections?asset_owner=${$user.walletAddress}&offset=0&limit=20`;
+		let resp = await fetch(url);
+		let json = await resp.json();
+		debugger;
+		let collection = json;
 	}
 
 	function debugModal() {
@@ -92,6 +111,14 @@
 	</div>
 </div>
 
+<div class="max-w-4xl m-auto px-3 my-8">
+	<div class="grid grid-cols-4 gap-4">
+		{#each dummyNftCollection as nft}
+			<NftThumbnail {...nft} />
+		{/each}
+	</div>
+</div>
+
 <div class="bg-zinc-700 text-white py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
 		<div class="heading text-5xl">Scan an NFT</div>
@@ -109,6 +136,7 @@
 		<div class="text-2xl text-white">DEBUG</div>
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
 		<Button onClick={() => debugModal()}>Debug Modal</Button>
+		<Button onClick={() => loadCollection()}>Load Collection</Button>
 	</div>
 </div>
 

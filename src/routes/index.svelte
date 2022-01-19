@@ -6,6 +6,7 @@
 	import { user } from '$lib/stores/user';
 	import dummyNftCollection from '$lib/dummyNftCollection';
 	import NftThumbnail from '$lib/nft-thumbnail.svelte';
+	import defaultAbi from '$lib/defaultAbi';
 
 	import Button from '$lib/ui/button.svelte';
 	import About from './about.svelte';
@@ -82,6 +83,18 @@
 		let a = web3Modal;
 		debugger;
 	}
+
+	async function readNFT() {
+		let randoNFT = dummyNftCollection[0];
+		let saddness = new ethers.Contract(
+			randoNFT.primary_asset_contracts[0].address,
+			defaultAbi,
+			provider
+		);
+
+		let a = await saddness.tokenURI(5);
+		debugger;
+	}
 </script>
 
 <svelte:head>
@@ -137,6 +150,7 @@
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
 		<Button onClick={() => debugModal()}>Debug Modal</Button>
 		<Button onClick={() => loadCollection()}>Load Collection</Button>
+		<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
 	</div>
 </div>
 

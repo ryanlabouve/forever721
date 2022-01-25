@@ -9,8 +9,8 @@ export async function evaluateNft(tokenUri) {
   if (isBase64(tokenUri)) {
     console.log("it is base64")
     // in-browser change this line to:
-    // const metadata = atob(tokenUri)
-    const metadataStr = Buffer.from(tokenUri, 'base64').toString('binary')
+    const metadataStr = atob(tokenUri)
+    // const metadataStr = Buffer.from(tokenUri, 'base64').toString('binary')
     console.log(metadataStr)
 
     try {

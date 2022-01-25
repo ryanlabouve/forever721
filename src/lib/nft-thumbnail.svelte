@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+
 	import { evaluateNft } from './utils/functions';
 
 	console.log($$props);
@@ -10,10 +12,19 @@
 	export let created_date;
 	export let description;
 
-	const evaluation = evaluateNft(metadata);
-	const grade = evaluation[0];
-	const evaluationMessage = evaluation[1][0];
+	console.log('metadata: ', metadata);
+	let evaluation; // = await evaluateNft(metadata);
+	let grade; // = evaluation[0];
+	let evaluationMessage; // = evaluation[1][0];
 	// Everythign below this is just html
+
+	onMount(async () => {
+		let evaluation = await evaluateNft(metadata);
+		console.log('evaluation: ', evaluation);
+
+		let grade = evaluation[0];
+		let evaluationMessage = evaluation[1][0];
+	});
 </script>
 
 <div class="bg-gray-50 p-4 border">

@@ -13,7 +13,7 @@
 	import About from './about.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 
-	let moralisKey = env.MORALIS_API_KEY; // see chat
+	let moralisKey = env.moralisApiKey; // see chat
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
 	let web3Modal;

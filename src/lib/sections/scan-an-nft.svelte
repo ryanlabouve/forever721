@@ -14,14 +14,27 @@
 
 	onMount(() => {
 		// TODO: Just for debugging. Delete before prod;
-		nftContractAddress = '0x25ed58c027921e14d86380ea2646e3a1b5c55a8b';
-		tokenId = '7694';
+		// On Chain
+
+		// nftContractAddress = '0x25ed58c027921e14d86380ea2646e3a1b5c55a8b';
+		// tokenId = '7694';
+
+		// IPFS
+		//opensea.io/assets/0x3db5463a9e2d04334192c6f2dd4b72def4751a61/487
+		// nftContractAddress = '0x3db5463a9e2d04334192c6f2dd4b72def4751a61';
+		// tokenId = '487';
+
+		// Plain HTTPS
+		// https://opensea.io/assets/0xed5af388653567af2f388e6224dc7c4b3241c544/1948
+		nftContractAddress = '0xed5af388653567af2f388e6224dc7c4b3241c544';
+		tokenId = '1948';
 	});
 
 	// Reads metadata from contract
 	async function checkNft(nftContractAddress: string, tokenId: string): Promise<void> {
 		let nftContract: Contract = new ethers.Contract(nftContractAddress, defaultAbi, $user.provider);
-		metaData = tokenUriToMetaData(await nftContract.tokenURI(tokenId));
+		let tokenUri = await nftContract.tokenURI(tokenId);
+		metaData = await tokenUriToMetaData(tokenUri);
 		imageLoaded = true;
 	}
 </script>

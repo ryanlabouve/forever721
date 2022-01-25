@@ -28,8 +28,8 @@
 
 	onMount(async () => {
 		web3Modal = new Web3Modal({
-			// network: 'mainnet', // optional
-			network: 'rinkeby', // optional
+			network: 'mainnet', // optional
+			// network: 'rinkeby', // optional
 			cacheProvider: true, // optional
 			providerOptions // required
 		});
@@ -190,6 +190,7 @@
 		// resultOfWaitingOnSadness.to
 		// resultOfWaitingOnSadness.transactionHash
 		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
 		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
 
 		debugger;

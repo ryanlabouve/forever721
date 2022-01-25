@@ -39,9 +39,13 @@ npm run build
 
 ## Env vars
 
+Envs are handled by https://direnv.net/
+
 `.envrc`
 
 https://etherscan.io/myapikey
+
+Note: ENVs need to start with `VITE_` to be sent to the frontend.
 
 ```
 export VITE_ETHERSCAN_KEY="datkey"

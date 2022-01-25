@@ -6,9 +6,12 @@
 	import { user } from '$lib/stores/user';
 	import dummyNftCollection from '$lib/dummyNftCollection';
 	import NftThumbnail from '$lib/nft-thumbnail.svelte';
+	import defaultAbi from '$lib/defaultAbi';
+	import { dopAbi } from '$lib/dopAbi';
 
 	import Button from '$lib/ui/button.svelte';
 	import About from './about.svelte';
+	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
@@ -23,7 +26,8 @@
 
 	onMount(async () => {
 		web3Modal = new Web3Modal({
-			network: 'mainnet', // optional
+			// network: 'mainnet', // optional
+			network: 'rinkeby', // optional
 			cacheProvider: true, // optional
 			providerOptions // required
 		});
@@ -59,7 +63,9 @@
 		user.update(() => {
 			return {
 				walletAddress,
-				walletENSAddress
+				walletENSAddress,
+				provider,
+				signer
 			};
 		});
 
@@ -81,6 +87,46 @@
 	function debugModal() {
 		let a = web3Modal;
 		debugger;
+	}
+
+	async function readNFT() {
+		let randoNFT = dummyNftCollection[0];
+		let saddness = new ethers.Contract(
+			randoNFT.primary_asset_contracts[0].address,
+			defaultAbi,
+			provider
+		);
+
+		let a = await saddness.tokenURI(5);
+		debugger;
+	}
+
+	async function tryDopp() {
+		// Params:
+		let walletAddress = $user.walletAddress;
+		let dopContractAddress = '0x823CFCe3571e2f3E7897e5E6B1082170bfbFED2d';
+		// Contract address
+		let contractAddress = '0x6eee7ca9d7c541081ac35f8d995698f9a51ec89e';
+		let tokenId = '1';
+
+		// Doing:
+		// Load ABI
+		// Call dopp contract with params
+		let saddness = new ethers.Contract(dopContractAddress, dopAbi, signer);
+		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
+		let resultOfWaitingOnSadness = await resultOfSadness.wait();
+
+		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
+		// 	(f) => f.event === 'SnapshotCreated'
+		// );
+
+		// resultOfWaitingOnSadness.to
+		// resultOfWaitingOnSadness.transactionHash
+		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
+
+		debugger;
+		// Show a success by reacitng to Emit
 	}
 </script>
 
@@ -119,11 +165,7 @@
 	</div>
 </div>
 
-<div class="bg-zinc-700 text-white py-8">
-	<div class="max-w-4xl m-auto px-3 my-8">
-		<div class="heading text-5xl">Scan an NFT</div>
-	</div>
-</div>
+<ScanAnNft />
 
 <div class="bg-zinc-200  py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
@@ -137,6 +179,8 @@
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
 		<Button onClick={() => debugModal()}>Debug Modal</Button>
 		<Button onClick={() => loadCollection()}>Load Collection</Button>
+		<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
+		<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>
 	</div>
 </div>
 

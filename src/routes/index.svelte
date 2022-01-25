@@ -77,7 +77,7 @@
 	}
 
 	async function loadCollection() {
-		if (!$user.walletAddress) return;
+		// if (!$user.walletAddress) return;
 
 		// Example wallet with decent # of NFTs
 		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import defaultAbi from '$lib/defaultAbi';
 	import { user } from '$lib/stores/user';
+	import Nft from '$lib/ui/nft.svelte';
+	import { tokenUriToMetaData } from '$lib/nft-utils';
 
 	import { Contract, ethers } from 'ethers';
 	import { onMount } from 'svelte';
 
+	let metaData;
 	let imageLoaded: boolean = false;
 	let tokenId: string;
 	let nftContractAddress: string;
@@ -18,8 +21,8 @@
 	// Reads metadata from contract
 	async function checkNft(nftContractAddress: string, tokenId: string): Promise<void> {
 		let nftContract: Contract = new ethers.Contract(nftContractAddress, defaultAbi, $user.provider);
-		let metaData = await nftContract.tokenURI(tokenId);
-		debugger;
+		metaData = tokenUriToMetaData(await nftContract.tokenURI(tokenId));
+		imageLoaded = true;
 	}
 </script>
 
@@ -31,7 +34,7 @@
 			<div class="my-4">
 				<div class="border border-gray-500 rounded-lg  py-32">
 					{#if imageLoaded}
-						image
+						<Nft {metaData} />
 					{:else}
 						<div
 							class="flex items-center align-middle justify-center stroke-current storke-gray-500 fill-gray-500"

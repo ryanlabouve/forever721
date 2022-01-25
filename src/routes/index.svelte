@@ -13,7 +13,7 @@
 	import About from './about.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 
-	let moralisKey = '<put key here>' // see chat
+	let moralisKey = env.MORALIS_API_KEY; // see chat
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
 	let web3Modal;
@@ -80,29 +80,29 @@
 		if (!$user.walletAddress) return;
 
 		// Example wallet with decent # of NFTs
-		//let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`
+		// let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
 
-		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`
+		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
 		let options = {
 			method: 'GET', // *GET, POST, PUT, DELETE, etc.
 			headers: {
-				'Accept': 'application/json',
-				'X-API-Key': moralisKey,
-			},
+				Accept: 'application/json',
+				'X-API-Key': moralisKey
+			}
 		};
 		let resp = await fetch(url, options);
-		let {result} = await resp.json();
+		let { result } = await resp.json();
 
 		// debugger;
 		let _collection = [];
 		result.forEach((item, index) => {
 			try {
-			let metadata = JSON.parse(item.metadata)
-			let image_url = getURLFromURI(metadata.image);
-			let description = metadata.name;
-			let created_date = item.block_number;
-			_collection.push({description, image_url, created_date });
-			// console.log(JSON.stringify({description, image_url, created_date }));
+				let metadata = JSON.parse(item.metadata);
+				let image_url = getURLFromURI(metadata.image);
+				let description = metadata.name;
+				let created_date = item.block_number;
+				_collection.push({ description, image_url, created_date });
+				// console.log(JSON.stringify({description, image_url, created_date }));
 			} catch {
 				// Some items are just missing metadata altogether
 				return;
@@ -111,45 +111,45 @@
 		collection = _collection;
 	}
 
-function getURLFromURI(uri) {
-	// this code is adapted from CheckMyNFT
-	const ipfsGateway = 'https://ipfs.moralis.io:2053/ipfs/';
-	try {
-		if (!uri) {
-			throw 'no uri';
-		}
-		// if correct URI we get the protocol
-		let url = new URL(uri);
-		// if protocol other IPFS -- get the ipfs hash
-		
-		if (url.protocol === 'data:') {
-			return url;
-		}
-		
-		if (url.protocol === "ipfs:") {
-			let ipfsHash;
-			// ipfs://ipfs/Qm
-			if (url.href.includes("ipfs://ipfs/")) {
-				ipfsHash = url.href.replace("ipfs://ipfs/", "");
-			} else {
-				// ipfs://<ipfs hash>
-				ipfsHash = url.href.replace("ipfs://", "");
+	function getURLFromURI(uri) {
+		// this code is adapted from CheckMyNFT
+		const ipfsGateway = 'https://ipfs.moralis.io:2053/ipfs/';
+		try {
+			if (!uri) {
+				throw 'no uri';
+			}
+			// if correct URI we get the protocol
+			let url = new URL(uri);
+			// if protocol other IPFS -- get the ipfs hash
+
+			if (url.protocol === 'data:') {
+				return url;
+			}
+
+			if (url.protocol === 'ipfs:') {
+				let ipfsHash;
+				// ipfs://ipfs/Qm
+				if (url.href.includes('ipfs://ipfs/')) {
+					ipfsHash = url.href.replace('ipfs://ipfs/', '');
+				} else {
+					// ipfs://<ipfs hash>
+					ipfsHash = url.href.replace('ipfs://', '');
 				}
 				return ipfsGateway + ipfsHash;
 			}
-			
-			if (url.pathname.includes("ipfs")) {
+
+			if (url.pathname.includes('ipfs')) {
 				// /ipfs/QmTtbYLMHaSqkZ7UenwEs9Sri6oUjQgnagktJSnHeWY8iG
-				let ipfsHash = url.pathname.replace("/ipfs/", "");
+				let ipfsHash = url.pathname.replace('/ipfs/', '');
 				return ipfsGateway + ipfsHash;
 			}
-			
+
 			// otherwise it's a centralized uri
 			return uri;
 		} catch (e) {
 			throw e;
 		}
-	};
+	}
 
 	function debugModal() {
 		let a = web3Modal;

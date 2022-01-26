@@ -74,6 +74,7 @@ function evaluateImage(metadata) {
 }
 
 export function isBase64(str) {
+  if (typeof str !== 'string') return false; // TODO sad note
   return base64Regex.test(cleanBase64(str))
 }
 
@@ -86,8 +87,9 @@ function cleanBase64(str) {
 }
 
 async function getMetadataFromUrl(url) {
+  if (url?.split("://").length !== 2) return {}; // TODO: do this better
   const response = await fetch(url)
-  return response.text()
+  return response.text() // can we just .json instead?
 }
 
 function getResolvableUrl(uri) {

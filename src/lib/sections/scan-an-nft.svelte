@@ -6,12 +6,14 @@
 
 	import { Contract, ethers } from 'ethers';
 	import { onMount } from 'svelte';
+	import { evaluateNft } from '$lib/utils/functions';
 
 	let metaData;
 	let imageLoaded: boolean = false;
 	let tokenId: string;
 	let nftContractAddress: string;
 	let openseaUrl: string;
+	let evaluation;
 
 	onMount(() => {
 		// TODO: Just for debugging. Delete before prod;
@@ -61,6 +63,11 @@
 		let nftContract: Contract = new ethers.Contract(nftContractAddress, defaultAbi, $user.provider);
 		let tokenUri = await nftContract.tokenURI(tokenId);
 		metaData = await tokenUriToMetaData(tokenUri);
+
+		evaluation = await evaluateNft(metaData);
+
+		console.log(evaluation);
+
 		imageLoaded = true;
 	}
 </script>
@@ -75,7 +82,7 @@
 		<div class="grid grid-cols-2 gap-4">
 			<!-- Placeholder -->
 			<div class="my-4">
-				<div class="border border-gray-500 rounded-lg  py-32">
+				<div class="border border-gray-500 rounded-lg  py-32" class:py-32={!imageLoaded}>
 					{#if imageLoaded}
 						<Nft {metaData} />
 					{:else}
@@ -101,59 +108,76 @@
 				</div>
 			</div>
 			<!-- Form -->
-			<form on:submit|preventDefault={() => checkNft(nftContractAddress, tokenId)}>
+			{#if imageLoaded}
 				<div>
-					<div>Opensea URL</div>
-					<div class="flex ">
-						<input
-							class="rounded-tr-none rounded-br-none"
-							style="border-bottom-right-radius: 0px; border-top-right-radius: 0px;"
-							value={openseaUrl}
-							on:paste={(e) => setOpenseaUrl(e)}
-						/>
-						<a
-							href={openseaUrl}
-							target="_blank"
-							class="bg-gray-500 px-3 text-xs flex items-center rounded-tr-md rounded-br-md"
-							>Visit&nbsp;→</a
-						>
+					<div class="text-4xl">
+						{evaluation.name}
 					</div>
+					Viewing<a href={openseaUrl}>this image</a>.
+
+					<div>Grade</div>
+
+					<div>Metadata</div>
+
+					<button on:click={() => (imageLoaded = false)}> Close and view another </button>
 				</div>
-				<div class="relative my-8">
-					<div class="absolute inset-0 flex items-center" aria-hidden="true">
-						<div class="w-full border-t border-gray-300" />
-					</div>
-					<div class="relative flex justify-center">
-						<span class="px-2 bg-white text-sm text-gray-500 rounded-full px-4"> Or </span>
-					</div>
-				</div>
-				<div>
-					<div>NFT Contract Address</div>
+			{:else}
+				<form on:submit|preventDefault={() => checkNft(nftContractAddress, tokenId)}>
 					<div>
-						<input value={nftContractAddress} on:change={(e) => setNftContractAddress(e)} />
+						<div>Opensea URL</div>
+						<div class="flex ">
+							<input
+								class="rounded-tr-none rounded-br-none"
+								style="border-bottom-right-radius: 0px; border-top-right-radius: 0px;"
+								value={openseaUrl}
+								on:paste={(e) => setOpenseaUrl(e)}
+							/>
+							<a
+								href={openseaUrl}
+								target="_blank"
+								class="bg-gray-500 px-3 text-xs flex items-center rounded-tr-md rounded-br-md"
+								>Visit&nbsp;→</a
+							>
+						</div>
 					</div>
-				</div>
-				<div class="mb-4">
-					<div>Token ID</div>
+					<div class="relative my-8">
+						<div class="absolute inset-0 flex items-center" aria-hidden="true">
+							<div class="w-full border-t border-gray-300" />
+						</div>
+						<div class="relative flex justify-center">
+							<span class="px-2 bg-white text-sm text-gray-500 rounded-full px-4"> Or </span>
+						</div>
+					</div>
 					<div>
-						<input value={tokenId} on:change={(e) => setTokenId(e)} />
+						<div>NFT Contract Address</div>
+						<div>
+							<input value={nftContractAddress} on:change={(e) => setNftContractAddress(e)} />
+						</div>
 					</div>
-				</div>
-				<div>
-					<input class="border border-white p-2" type="submit" value="Analyze NFT" />
-				</div>
-			</form>
+					<div class="mb-4">
+						<div>Token ID</div>
+						<div>
+							<input value={tokenId} on:change={(e) => setTokenId(e)} />
+						</div>
+					</div>
+					<div>
+						<input class="border border-white p-2" type="submit" value="Analyze NFT" />
+					</div>
+				</form>
+			{/if}
 		</div>
 	</div>
 </div>
 
 <style>
-	input {
+	input,
+	button {
 		@apply text-gray-600 border border-gray-400 bg-gray-800 text-gray-300 px-2 py-3 w-full rounded focus:border-gray-100
 		focus:text-gray-50 focus:ring-gray-50;
 	}
 
-	input[type='submit'] {
+	input[type='submit'],
+	button {
 		@apply text-white rounded-full cursor-pointer;
 	}
 </style>

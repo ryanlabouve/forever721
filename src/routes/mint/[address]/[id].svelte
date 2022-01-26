@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import BadPolaroid from '$lib/ui/bad-polaroid.svelte';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -21,3 +22,7 @@
 <div>
 	id: {$page.params.id}
 </div>
+
+<BadPolaroid
+	url={'https://ikzttp.mypinata.cloud/ipfs/QmYDvPAXtiJg7s8JdRBSLWdgSphQdac8j1YuQNNxcGE1hg/1948.png'}
+/>

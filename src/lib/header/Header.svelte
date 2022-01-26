@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { user } from '$lib/stores/user';
+	import { connectWallet } from '$lib/utils/connect-wallet';
 </script>
 
 <header class="flex px-3 py-8  items-center">
@@ -12,7 +13,9 @@
 				`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
 		</div>
 	{:else}
-		<button class="px-2 lonk underline cursor-auto">Connect Wallet</button>
+		<button on:click={() => connectWallet()} class="px-2 lonk underline cursor-auto"
+			>Connect Wallet</button
+		>
 	{/if}
 	<div class="px-2 lonk">Scan an NFT</div>
 	<div class="px-2 lonk">Learn More</div>

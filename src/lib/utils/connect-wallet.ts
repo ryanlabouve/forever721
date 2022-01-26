@@ -1,8 +1,9 @@
+import type { UserStore } from '$lib/types';
 import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
-import { user } from "$lib/stores/user";
+import { user } from '$lib/stores/user';
 
-async function connectWallet(): Promise<void> {
+async function connectWallet(): Promise<UserStore> {
   const providerOptions = {
     /* See Provider Options Section */
   };
@@ -19,16 +20,15 @@ async function connectWallet(): Promise<void> {
   const signer = provider.getSigner();
   const walletAddress = await signer.getAddress();
   const walletENSAddress = await provider.lookupAddress(walletAddress);
+  const userStore: UserStore = {
+    walletAddress,
+    walletENSAddress,
+    provider,
+    signer
+  };
 
-  // todo: move this out of connect wallet
-  user.update(() => {
-    return {
-      walletAddress,
-      walletENSAddress,
-      provider,
-      signer
-    };
-  });
+  user.update(() => { return userStore });
+  return userStore;
 }
 
 export { connectWallet }

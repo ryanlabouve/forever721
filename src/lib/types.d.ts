@@ -5,3 +5,10 @@
 export interface Locals {
 	userid: string;
 }
+
+export interface UserStore {
+	walletAddress: string;
+	walletENSAddress: string;
+	provider: ethers.providers.Web3Provider;
+	signer: ethers.providers.JsonRpcSigner;
+}

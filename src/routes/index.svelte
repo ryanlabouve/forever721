@@ -10,23 +10,15 @@
 
 	import Button from '$lib/ui/button.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
-	import { connectWallet as _connectWallet } from '$lib/utils/connect-wallet';
+	import { connectWallet } from '$lib/utils/connect-wallet';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
-	let web3Modal;
-	let instance;
-	let provider;
-	let signer;
 	let collection = [];
 
 	onMount(async () => {
 		if (window?.ethereum?.selectedAddress) connectWallet();
 	});
-
-	async function connectWallet() {
-		let p = await _connectWallet();
-	}
 
 	async function getABI() {
 		let etherscanURL = `http://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${env.etherscanKey}`;
@@ -119,17 +111,12 @@
 		}
 	}
 
-	function debugModal() {
-		let a = web3Modal;
-		debugger;
-	}
-
 	async function readNFT() {
 		let randoNFT = dummyNftCollection[0];
 		let saddness = new ethers.Contract(
 			randoNFT.primary_asset_contracts[0].address,
 			defaultAbi,
-			provider
+			$user.provider
 		);
 
 		let a = await saddness.tokenURI(5);
@@ -147,7 +134,7 @@
 		// Doing:
 		// Load ABI
 		// Call dopp contract with params
-		let saddness = new ethers.Contract(dopContractAddress, dopAbi, signer);
+		let saddness = new ethers.Contract(dopContractAddress, dopAbi, $user.signer);
 		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
 		let resultOfWaitingOnSadness = await resultOfSadness.wait();
 
@@ -222,7 +209,6 @@
 	<div class="max-w-3xl m-auto px-3 ">
 		<div class="text-2xl text-white">DEBUG</div>
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
-		<Button onClick={() => debugModal()}>Debug Modal</Button>
 		<Button onClick={() => loadCollection()}>Load Collection</Button>
 		<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
 		<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>

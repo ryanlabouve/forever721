@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import * as IPFS from 'ipfs-core';
 
 	onMount(async () => {
 		// Do initialization things here
+		const node = await Ipfs.create();
+		debugger;
+		// const client = await create('https://ipfs.infura.io:5001/api/v0');
+		// let results = await client.add('a string that will live on IPFS');
+		console.log(results);
 	});
 </script>
 

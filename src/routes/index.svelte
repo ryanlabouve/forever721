@@ -204,40 +204,45 @@
 	<title>NFTrusty</title>
 </svelte:head>
 
-<div class="max-w-4xl m-auto px-3 my-8">
-	<div class="grid grid-cols-2 gap-4">
-		<div class="flex flex-col justify-center">
-			<div class="text-3xl heading">What's in your NFT? Let's find out.</div>
-			<div class="mb-4">
-				When you buy NFTs you are buying the metadata. Learn what's in it and what you can do to
-				improve it.
+{#if collection.length == 0}
+	<div class="max-w-4xl m-auto px-3 my-8">
+		<div class="grid grid-cols-2 gap-4">
+			<div class="flex flex-col justify-center">
+				<div class="text-3xl heading">What's in your NFT? Let's find out.</div>
+				<div class="mb-4">
+					When you buy NFTs you are buying the metadata. Learn what's in it and what you can do to
+					improve it.
+				</div>
+				<div>
+					{#if $user.walletAddress}
+						<Button onClick={loadCollection}>🖼 Load your collection 🖼</Button>
+					{:else}
+						<Button onClick={connectWallet}>🦊 Connect Wallet 🦊</Button>
+					{/if}
+				</div>
 			</div>
 			<div>
-				{#if $user.walletAddress}
-					<Button onClick={loadCollection}>🖼 Load your collection 🖼</Button>
-				{:else}
-					<Button onClick={connectWallet}>🦊 Connect Wallet 🦊</Button>
-				{/if}
+				<img
+					class=""
+					style="transform: perspective(1500px) rotateY(-35deg);"
+					src="/images/badhero.png"
+					alt=" Bad hero"
+				/>
 			</div>
 		</div>
-		<div>
-			<img
-				class=""
-				style="transform: perspective(1500px) rotateY(-35deg);"
-				src="/images/badhero.png"
-				alt=" Bad hero"
-			/>
+	</div>
+{:else}
+	<div class="max-w-4xl m-auto px-3 my-8">
+		<div class="text-xl my-4">Here's what we found when scanning your collection...</div>
+		<div class="grid grid-cols-4 gap-4">
+			{#each collection as nft}
+				<NftThumbnail {...nft} />
+			{:else}
+				No NFTs found!
+			{/each}
 		</div>
 	</div>
-</div>
-
-<div class="max-w-4xl m-auto px-3 my-8">
-	<div class="grid grid-cols-4 gap-4">
-		{#each collection as nft}
-			<NftThumbnail {...nft} />
-		{/each}
-	</div>
-</div>
+{/if}
 
 <ScanAnNft />
 

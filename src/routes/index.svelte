@@ -28,13 +28,13 @@
 
 	onMount(async () => {
 		web3Modal = new Web3Modal({
-			network: 'mainnet', // optional
+			// network: 'mainnet', // optional
 			// network: 'rinkeby', // optional
 			cacheProvider: true, // optional
 			providerOptions // required
 		});
 
-		// getABI();
+		if (window?.ethereum?.selectedAddress) connectWallet();
 	});
 
 	async function getABI() {

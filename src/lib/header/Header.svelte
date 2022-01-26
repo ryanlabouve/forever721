@@ -8,7 +8,8 @@
 
 	{#if $user.walletAddress}
 		<div class="px-2 lonk pretty-lonk">
-			Connect as {$user.walletENSAddress || $user.walletAddress}
+			Connected as {$user.walletENSAddress ||
+				`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
 		</div>
 	{:else}
 		<div class="px-2 lonk ">Connect Wallet</div>

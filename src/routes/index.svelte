@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ethers } from 'ethers';
-	import Web3Modal from 'web3modal';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
@@ -10,29 +9,14 @@
 	import { dopAbi } from '$lib/dopAbi';
 
 	import Button from '$lib/ui/button.svelte';
-	import About from './about.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
+	import { connectWallet } from '$lib/utils/connect-wallet';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
-	let web3Modal;
-	let instance;
-	let provider;
-	let signer;
 	let collection = [];
 
-	const providerOptions = {
-		/* See Provider Options Section */
-	};
-
 	onMount(async () => {
-		web3Modal = new Web3Modal({
-			// network: 'mainnet', // optional
-			// network: 'rinkeby', // optional
-			cacheProvider: true, // optional
-			providerOptions // required
-		});
-
 		if (window?.ethereum?.selectedAddress) connectWallet();
 	});
 
@@ -52,37 +36,11 @@
 		}
 	}
 
-	async function connectWallet() {
-		console.log('connecting Wallet');
-		instance = await web3Modal.connect();
-		provider = new ethers.providers.Web3Provider(instance);
-		signer = provider.getSigner();
-
-		let walletAddress = await signer.getAddress();
-		let walletENSAddress = await provider.lookupAddress(walletAddress);
-
-		user.update(() => {
-			return {
-				walletAddress,
-				walletENSAddress,
-				provider,
-				signer
-			};
-		});
-
-		// let contract = new ethers.Contract(contractAddress, contractABI, provider);
-		// let uri = await contract.tokenURI(1); // 1 is just the id of dis token
-		console.log(walletAddress, walletENSAddress);
-	}
-
 	async function loadCollection() {
-		// if (!$user.walletAddress) return;
-
 		// Example wallet with decent # of NFTs
 		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
 		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
 
-		console.log('key', env.moralisApiKey);
 		let options: RequestInit = {
 			headers: {
 				Accept: 'application/json',
@@ -153,17 +111,12 @@
 		}
 	}
 
-	function debugModal() {
-		let a = web3Modal;
-		debugger;
-	}
-
 	async function readNFT() {
 		let randoNFT = dummyNftCollection[0];
 		let saddness = new ethers.Contract(
 			randoNFT.primary_asset_contracts[0].address,
 			defaultAbi,
-			provider
+			$user.provider
 		);
 
 		let a = await saddness.tokenURI(5);
@@ -181,7 +134,7 @@
 		// Doing:
 		// Load ABI
 		// Call dopp contract with params
-		let saddness = new ethers.Contract(dopContractAddress, dopAbi, signer);
+		let saddness = new ethers.Contract(dopContractAddress, dopAbi, $user.signer);
 		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
 		let resultOfWaitingOnSadness = await resultOfSadness.wait();
 
@@ -256,7 +209,6 @@
 	<div class="max-w-3xl m-auto px-3 ">
 		<div class="text-2xl text-white">DEBUG</div>
 		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
-		<Button onClick={() => debugModal()}>Debug Modal</Button>
 		<Button onClick={() => loadCollection()}>Load Collection</Button>
 		<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
 		<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>

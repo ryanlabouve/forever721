@@ -31,19 +31,29 @@
 		tokenId = '1948';
 	});
 
-	function setOpenseaUrl(url) {
-		// validate
-		// set nftContractAddress
-		// set tokenId
-		// enable Analyze
+	function setOpenseaUrl(e) {
+		let url = e.clipboardData.getData('text');
+		// https://opensea.io/assets/:nftContractAddress/:tokenId
+		let openseaAddresAndIdRe = /https:\/\/opensea.io\/assets\/(\w*)\/(\w*)/g;
+		let [_, address, id] = openseaAddresAndIdRe.exec(url);
+
+		if (address && id) {
+			openseaUrl = url;
+			nftContractAddress = address;
+			tokenId = id;
+		}
 	}
 
-	function setNftContractAddress() {
-		// validate
-		// set nftContractAddress
-		// reset tokenId
-		// update openSea
-		// enableAnalyze
+	function setNftContractAddress(e) {
+		let id = e.target.value;
+		openseaUrl = `https://opensea.io/assets/${address}/${tokenId}`;
+		nftContractAddress = address;
+	}
+
+	function setTokenId(e) {
+		let id = e.target.value;
+		openseaUrl = `https://opensea.io/assets/${nftContractAddress}/${id}`;
+		tokenId = id;
 	}
 
 	// Reads metadata from contract
@@ -98,7 +108,8 @@
 						<input
 							class="rounded-tr-none rounded-br-none"
 							style="border-bottom-right-radius: 0px; border-top-right-radius: 0px;"
-							bind:value={openseaUrl}
+							value={openseaUrl}
+							on:paste={(e) => setOpenseaUrl(e)}
 						/>
 						<a
 							href={openseaUrl}
@@ -119,13 +130,13 @@
 				<div>
 					<div>NFT Contract Address</div>
 					<div>
-						<input bind:value={nftContractAddress} />
+						<input value={nftContractAddress} on:change={(e) => setNftContractAddress(e)} />
 					</div>
 				</div>
 				<div class="mb-4">
 					<div>Token ID</div>
 					<div>
-						<input bind:value={tokenId} />
+						<input value={tokenId} on:change={(e) => setTokenId(e)} />
 					</div>
 				</div>
 				<div>

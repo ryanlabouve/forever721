@@ -8,9 +8,7 @@ export async function evaluateNft(tokenUri) {
 
   if (isBase64(tokenUri)) {
     console.log("it is base64")
-    // in-browser change this line to:
-    const metadataStr = atob(tokenUri)
-    // const metadataStr = Buffer.from(tokenUri, 'base64').toString('binary')
+    const metadataStr = atob(cleanBase64(tokenUri))
     console.log(metadataStr)
 
     try {
@@ -25,7 +23,7 @@ export async function evaluateNft(tokenUri) {
     }
   } else {
     console.log("it is url")
-    const [url, protocol] = getResolvableUrl(tokenUri)
+    const [url, protocol, hostname] = getResolvableUrl(tokenUri)
     console.log("resolvable url is " + url)
     const metadataStr = await getMetadataFromUrl(url)
     console.log(metadataStr)
@@ -54,13 +52,19 @@ function evaluateImage(metadata) {
     imageMessage = "Image is embedded in metadata"
     evaluation = "Green"
   } else {
-    const [url, protocol] = getResolvableUrl(metadata.image)
+    const [url, protocol, hostname] = getResolvableUrl(metadata.image)
     if (protocol === "ipfs") {
       imageMessage = "Image is hosted on IPFS"
       evaluation = "Green"
     } else if (protocol === "http") {
-      imageMessage = "Image is hosted on private server"
-      evaluation = "Red"
+      // TODO this is a proxy for arweave, need to support direct arweave support
+      if (hostname === "arweave.net") {
+        imageMessage = "Image is hosted on Arweave"
+        evaluation = "Green"
+      } else {
+        imageMessage = "Image is hosted on private server"
+        evaluation = "Red"
+      }
     } else {
       imageMessage = "Image does not match known pattern"
       evaluation = "Yellow"
@@ -70,7 +74,15 @@ function evaluateImage(metadata) {
 }
 
 function isBase64(str) {
-  return base64Regex.test(str)
+  return base64Regex.test(cleanBase64(str))
+}
+
+function cleanBase64(str) {
+  let cleanStr = str
+  if (str.includes(";base64,")) {
+    cleanStr = str.split(";base64,")[1]
+  }
+  return cleanStr
 }
 
 async function getMetadataFromUrl(url) {
@@ -88,12 +100,13 @@ function getResolvableUrl(uri) {
   if (url.protocol === "ipfs:") {
     // ipfs://ipfs/Qm
     const ipfsHash = url.href.replace("ipfs://ipfs/", "").replace("ipfs://", "")
-    return [ipfsGetEndpoint + ipfsHash, "ipfs"]
+    return [ipfsGetEndpoint + ipfsHash, "ipfs", url.hostname]
   } else if (url.pathname.includes("ipfs") || url.pathname.includes("Qm")) {
     // /ipfs/QmTtbYLMHaSqkZ7UenwEs9Sri6oUjQgnagktJSnHeWY8iG
     const ipfsHash = url.pathname.replace("/ipfs/", "")
-    return [ipfsGetEndpoint + ipfsHash, "ipfs"]
+    return [ipfsGetEndpoint + ipfsHash, "ipfs", url.hostname]
+    // TODO need to support arweave here too
   } else {
-    return [uri, "http"]
+    return [uri, "http", url.hostname]
   }
 }

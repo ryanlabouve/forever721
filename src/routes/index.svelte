@@ -101,7 +101,8 @@
 				let image_url = getURLFromURI(metadata.image);
 				let description = metadata.name;
 				let created_date = item.block_number;
-				_collection.push({ metadata, description, image_url, created_date });
+                                let token_uri = item.token_uri;
+				_collection.push({ token_uri, metadata, description, image_url, created_date });
 				// console.log(JSON.stringify({description, image_url, created_date }));
 			} catch {
 				// Some items are just missing metadata altogether

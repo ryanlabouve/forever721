@@ -77,12 +77,12 @@
 	}
 
 	async function loadCollection() {
-		if (!$user.walletAddress) return;
+		// if (!$user.walletAddress) return;
 
 		// Example wallet with decent # of NFTs
-		// let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
 
-		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
+		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
 		let options = {
 			method: 'GET', // *GET, POST, PUT, DELETE, etc.
 			headers: {
@@ -101,7 +101,8 @@
 				let image_url = getURLFromURI(metadata.image);
 				let description = metadata.name;
 				let created_date = item.block_number;
-				_collection.push({ description, image_url, created_date });
+                                let token_uri = item.token_uri;
+				_collection.push({ token_uri, metadata, description, image_url, created_date });
 				// console.log(JSON.stringify({description, image_url, created_date }));
 			} catch {
 				// Some items are just missing metadata altogether

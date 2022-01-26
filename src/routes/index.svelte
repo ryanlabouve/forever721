@@ -13,7 +13,6 @@
 	import About from './about.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 
-	let moralisKey = env.moralisApiKey; // see chat
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
 	let web3Modal;
@@ -81,35 +80,37 @@
 
 		// Example wallet with decent # of NFTs
 		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
-
 		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
-		let options = {
-			method: 'GET', // *GET, POST, PUT, DELETE, etc.
+
+		console.log('key', env.moralisApiKey);
+		let options: RequestInit = {
 			headers: {
 				Accept: 'application/json',
-				'X-API-Key': moralisKey
+				//@ts-ignore
+				'X-API-Key': env.moralisApiKey
 			}
 		};
 		let resp = await fetch(url, options);
 		let { result } = await resp.json();
 
-		// debugger;
-		let _collection = [];
-		result.forEach((item, index) => {
-			try {
-				let metadata = JSON.parse(item.metadata);
-				let image_url = getURLFromURI(metadata.image);
-				let description = metadata.name;
-				let created_date = item.block_number;
-                                let token_uri = item.token_uri;
-				_collection.push({ token_uri, metadata, description, image_url, created_date });
-				// console.log(JSON.stringify({description, image_url, created_date }));
-			} catch {
-				// Some items are just missing metadata altogether
-				return;
-			}
-		});
-		collection = _collection;
+		collection = result.reduce((acc, item) => {
+			if (!item.metadata) return acc;
+
+			let { metadata } = item;
+			metadata = JSON.parse(metadata);
+
+			return [
+				...acc,
+				{
+					metadata: JSON.parse(item.metadata),
+					image_url: getURLFromURI(metadata.image),
+					description: metadata.name,
+					created_date: item.block_number,
+					token_uri: item.token_uri,
+					token_address: item.token_address
+				}
+			];
+		}, []);
 	}
 
 	function getURLFromURI(uri) {
@@ -212,7 +213,11 @@
 				improve it.
 			</div>
 			<div>
-				<Button onClick={connectWallet}>Connect Wallet</Button>
+				{#if $user.walletAddress}
+					<Button onClick={loadCollection}>🖼 Load your collection 🖼</Button>
+				{:else}
+					<Button onClick={connectWallet}>🦊 Connect Wallet 🦊</Button>
+				{/if}
 			</div>
 		</div>
 		<div>

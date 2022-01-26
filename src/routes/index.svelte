@@ -158,7 +158,7 @@
 </svelte:head>
 
 {#if collection.length == 0}
-	<div class="max-w-4xl m-auto px-3 my-8">
+	<div class="max-w-4xl m-auto px-3 my-16">
 		<div class="grid grid-cols-2 gap-4">
 			<div class="flex flex-col justify-center">
 				<div class="text-3xl heading">What's in your NFT? Let's find out.</div>
@@ -177,7 +177,7 @@
 			<div>
 				<img
 					class=""
-					style="transform: perspective(1500px) rotateY(-35deg);"
+					style="transform: perspective(1500px) rotateY(-35deg) translateX(21px) scale(1.03)"
 					src="/images/badhero.png"
 					alt=" Bad hero"
 				/>
@@ -201,7 +201,7 @@
 
 <div class="bg-zinc-200  py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
-		<div class="heading text-5xl" id="learn-more">Learn More</div>
+		<div class="heading text-5xl">Learn More</div>
 	</div>
 </div>
 

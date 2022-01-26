@@ -20,27 +20,9 @@
 	onMount(async () => {
 		token_id = token_uri.split('/').slice(-1).join(''); // TODO: do this less terribly
 
-		let evaluation = await evaluateNft(token_uri);
-		console.log('evaluation: ', evaluation);
-
-		let grade = evaluation[0];
-
-		let evaluationClass;
-		switch (grade) {
-			case 'Green':
-				evaluationClass = 'text-green-600';
-				break;
-			case 'Yellow':
-				evaluationClass = 'text-orange-600';
-				break;
-			case 'Red':
-				evaluationClass = 'text-red-600';
-				break;
-			default:
-				evaluationClass = 'text-gray-600';
-		}
-
-		let evaluationMessage = evaluation[1].join('<br/>');
+		evaluation = await evaluateNft(token_uri);
+		grade = evaluation[0].toLowerCase();
+		evaluationMessage = evaluation[1].join('<br/>');
 	});
 </script>
 
@@ -55,18 +37,25 @@
 
 	<div class="text-center pt-4">
 		<div class="heading">Our Evaluation</div>
-		<div class={evaluationClass}>
+		<div
+			class:text-gray-600={!grade}
+			class:text-green-600={grade == 'green'}
+			class:text-orange-600={grade == 'yellow'}
+			class:text-red-600={grade == 'red'}
+		>
 			{grade}
 		</div>
 		<div>
-			{evaluationMessage}
+			{@html evaluationMessage}
 		</div>
 	</div>
 
-	<a
-		class="bg-zinc-600 text-white rounded-full p-3 px-5"
-		href={`/mint/${token_address}/${token_id}`}
-	>
-		Mint
-	</a>
+	<div class="my-4">
+		<a
+			class="bg-zinc-600 text-white rounded-full p-2.5 px-5 text-sm"
+			href={`/mint/${token_address}/${token_id}`}
+		>
+			Prepare to Mint →
+		</a>
+	</div>
 </div>

@@ -44,6 +44,68 @@ export async function evaluateNft(tokenUri) {
     }
   }
 }
+// returns 'ipfs', 'http', or 'embedded', or 'other'
+export async function getTokenUriType(tokenUri) {
+  console.log("tokenUri: ", tokenUri);
+
+  if (isBase64(tokenUri)) {
+    console.log("it is base64")
+    const metadataStr = atob(cleanBase64(tokenUri))
+    console.log(metadataStr)
+
+    try {
+      const metadata = JSON.parse(metadataStr)
+      console.log("it is json")
+      return 'embedded';
+    } catch (e) {
+      console.log(e)
+      console.log("base64 tokenUri is not json")
+      return 'other';
+    }
+  } else {
+    console.log("it is url")
+    const [url, protocol, hostname] = getResolvableUrl(tokenUri)
+    console.log("resolvable url is " + url)
+    const metadataStr = await getMetadataFromUrl(url)
+    console.log(metadataStr)
+
+    try {
+      const metadata = JSON.parse(metadataStr)
+      console.log("it is json")
+
+      if (protocol === "ipfs") {
+        return 'ipfs';
+      } else {
+        return 'http';
+      }
+    } catch (e) {
+      console.log("it is not json")
+      return 'other';
+    }
+  }
+}
+
+// returns 'ipfs', 'http', or 'embedded', or 'other'
+export async function getImageType(imageValue) {
+  if (typeof imageValue === "string" && imageValue.startsWith("data:image")) {
+    return 'embedded';
+  } else {
+    const [url, protocol, hostname] = getResolvableUrl(imageValue)
+    if (protocol === "ipfs") {
+      return 'ipfs';
+    } else if (protocol === "http") {
+      // TODO this is a proxy for arweave, need to support direct arweave support
+      if (hostname === "arweave.net") {
+        // I'm ignoring arweave for now, treat it as http
+        return 'http';
+      } else {
+        return 'http';
+      }
+    } else {
+      return 'other';
+    }
+  }
+}
 
 function evaluateImage(metadata) {
   let imageMessage

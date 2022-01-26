@@ -11,6 +11,7 @@
 	let imageLoaded: boolean = false;
 	let tokenId: string;
 	let nftContractAddress: string;
+	let openseaUrl: string;
 
 	onMount(() => {
 		// TODO: Just for debugging. Delete before prod;
@@ -25,10 +26,25 @@
 		// tokenId = '487';
 
 		// Plain HTTPS
-		// https://opensea.io/assets/0xed5af388653567af2f388e6224dc7c4b3241c544/1948
+		openseaUrl = 'https://opensea.io/assets/0xed5af388653567af2f388e6224dc7c4b3241c544/1948';
 		nftContractAddress = '0xed5af388653567af2f388e6224dc7c4b3241c544';
 		tokenId = '1948';
 	});
+
+	function setOpenseaUrl(url) {
+		// validate
+		// set nftContractAddress
+		// set tokenId
+		// enable Analyze
+	}
+
+	function setNftContractAddress() {
+		// validate
+		// set nftContractAddress
+		// reset tokenId
+		// update openSea
+		// enableAnalyze
+	}
 
 	// Reads metadata from contract
 	async function checkNft(nftContractAddress: string, tokenId: string): Promise<void> {
@@ -41,7 +57,11 @@
 
 <div class="bg-zinc-700 text-white py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
-		<div class="heading text-5xl">Scan an NFT</div>
+		<div class="flex items-center mb-8">
+			<div class="heading text-5xl flex-grow">Scan an NFT</div>
+
+			<div>Audit a single NFT by address</div>
+		</div>
 		<div class="grid grid-cols-2 gap-4">
 			<!-- Placeholder -->
 			<div class="my-4">
@@ -73,6 +93,30 @@
 			<!-- Form -->
 			<form on:submit|preventDefault={() => checkNft(nftContractAddress, tokenId)}>
 				<div>
+					<div>Opensea URL</div>
+					<div class="flex ">
+						<input
+							class="rounded-tr-none rounded-br-none"
+							style="border-bottom-right-radius: 0px; border-top-right-radius: 0px;"
+							bind:value={openseaUrl}
+						/>
+						<a
+							href={openseaUrl}
+							target="_blank"
+							class="bg-gray-500 px-3 text-xs flex items-center rounded-tr-md rounded-br-md"
+							>Visit&nbsp;→</a
+						>
+					</div>
+				</div>
+				<div class="relative my-8">
+					<div class="absolute inset-0 flex items-center" aria-hidden="true">
+						<div class="w-full border-t border-gray-300" />
+					</div>
+					<div class="relative flex justify-center">
+						<span class="px-2 bg-white text-sm text-gray-500"> Or </span>
+					</div>
+				</div>
+				<div>
 					<div>NFT Contract Address</div>
 					<div>
 						<input bind:value={nftContractAddress} />
@@ -94,10 +138,11 @@
 
 <style>
 	input {
-		@apply text-gray-600;
+		@apply text-gray-600 border border-gray-400 bg-gray-800 text-gray-300 px-2 py-3 w-full rounded focus:border-gray-100
+		focus:text-gray-50 focus:ring-gray-50;
 	}
 
 	input[type='submit'] {
-		@apply text-white;
+		@apply text-white rounded-full cursor-pointer;
 	}
 </style>

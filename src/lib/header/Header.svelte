@@ -12,7 +12,7 @@
 				`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
 		</div>
 	{:else}
-		<div class="px-2 lonk ">Connect Wallet</div>
+		<button class="px-2 lonk underline cursor-auto">Connect Wallet</button>
 	{/if}
 	<div class="px-2 lonk">Scan an NFT</div>
 	<div class="px-2 lonk">Learn More</div>

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ethers } from 'ethers';
-	import Web3Modal from 'web3modal';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
@@ -10,8 +9,8 @@
 	import { dopAbi } from '$lib/dopAbi';
 
 	import Button from '$lib/ui/button.svelte';
-	import About from './about.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
+	import { connectWallet as _connectWallet } from '$lib/utils/connect-wallet';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
@@ -21,20 +20,13 @@
 	let signer;
 	let collection = [];
 
-	const providerOptions = {
-		/* See Provider Options Section */
-	};
-
 	onMount(async () => {
-		web3Modal = new Web3Modal({
-			// network: 'mainnet', // optional
-			// network: 'rinkeby', // optional
-			cacheProvider: true, // optional
-			providerOptions // required
-		});
-
 		if (window?.ethereum?.selectedAddress) connectWallet();
 	});
+
+	async function connectWallet() {
+		let p = await _connectWallet();
+	}
 
 	async function getABI() {
 		let etherscanURL = `http://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${env.etherscanKey}`;
@@ -52,37 +44,11 @@
 		}
 	}
 
-	async function connectWallet() {
-		console.log('connecting Wallet');
-		instance = await web3Modal.connect();
-		provider = new ethers.providers.Web3Provider(instance);
-		signer = provider.getSigner();
-
-		let walletAddress = await signer.getAddress();
-		let walletENSAddress = await provider.lookupAddress(walletAddress);
-
-		user.update(() => {
-			return {
-				walletAddress,
-				walletENSAddress,
-				provider,
-				signer
-			};
-		});
-
-		// let contract = new ethers.Contract(contractAddress, contractABI, provider);
-		// let uri = await contract.tokenURI(1); // 1 is just the id of dis token
-		console.log(walletAddress, walletENSAddress);
-	}
-
 	async function loadCollection() {
-		// if (!$user.walletAddress) return;
-
 		// Example wallet with decent # of NFTs
 		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
 		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
 
-		console.log('key', env.moralisApiKey);
 		let options: RequestInit = {
 			headers: {
 				Accept: 'application/json',

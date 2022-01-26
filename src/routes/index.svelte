@@ -201,7 +201,7 @@
 
 <div class="bg-zinc-200  py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
-		<div class="heading text-5xl">Learn More</div>
+		<div class="heading text-5xl" id="learn-more">Learn More</div>
 	</div>
 </div>
 

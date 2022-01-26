@@ -68,7 +68,7 @@
 <div class="bg-zinc-700 text-white py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">
 		<div class="flex items-center mb-8">
-			<div class="heading text-5xl flex-grow">Scan an NFT</div>
+			<div class="heading text-5xl flex-grow" id="#scan-an-nft">Scan an NFT</div>
 
 			<div>Audit a single NFT by address</div>
 		</div>

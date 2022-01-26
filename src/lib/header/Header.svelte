@@ -17,8 +17,8 @@
 			>Connect Wallet</button
 		>
 	{/if}
-	<div class="px-2 lonk">Scan an NFT</div>
-	<div class="px-2 lonk">Learn More</div>
+	<a href="#scan-an-nft" class="px-2 lonk">Scan an NFT</a>
+	<a href="#learn-more" class="px-2 lonk">Learn More</a>
 	<div>
 		<a href="#">
 			<img class="w-6 h-6" src="/images/github.svg" />

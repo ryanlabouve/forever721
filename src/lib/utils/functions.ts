@@ -73,7 +73,7 @@ function evaluateImage(metadata) {
   return [evaluation, imageMessage]
 }
 
-function isBase64(str) {
+export function isBase64(str) {
   return base64Regex.test(cleanBase64(str))
 }
 

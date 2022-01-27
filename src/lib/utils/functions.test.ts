@@ -52,7 +52,7 @@ const g_nft_examples = {
     "token_uri": "eyJuYW1lIjogIkRldiAjMzM2NCIsICJkZXNjcmlwdGlvbiI6ICJEZXZlbG9wZXJzIGFyb3VuZCB0aGUgd29ybGQgYXJlIHRpcmVkIG9mIHdvcmtpbmcgYW5kIGNvbnRyaWJ1dGluZyB0aGVpciB0aW1lIGFuZCBlZmZvcnQgdG8gZW5yaWNoIHRoZSB0b3AgMSUuIEpvaW4gdGhlIG1vdmVtZW50IHRoYXQgaXMgY29tbXVuaXR5IG93bmVkLCBidWlsZGluZyB0aGUgZnV0dXJlIGZyb20gdGhlIGJvdHRvbSB1cC4iLCAiaW1hZ2UiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhCeVpYTmxjblpsUVhOd1pXTjBVbUYwYVc4OUluaE5hVzVaVFdsdUlHMWxaWFFpSUhacFpYZENiM2c5SWpBZ01DQXpOVEFnTXpVd0lqNDhjM1I1YkdVK0xtSmhjMlVnZXlCbWFXeHNPaUJpYkdGamF6c2dabTl1ZEMxbVlXMXBiSGs2SUhObGNtbG1PeUJtYjI1MExYTnBlbVU2SURFMGNIZzdJSDA4TDNOMGVXeGxQanh5WldOMElIZHBaSFJvUFNJeE1EQWxJaUJvWldsbmFIUTlJakV3TUNVaUlHWnBiR3c5SW5kb2FYUmxJaUF2UGp4MFpYaDBJSGc5SWpFd0lpQjVQU0l5TUNJZ1kyeGhjM005SW1KaGMyVWlQa3RoYkdrZ1RHbHVkWGc4TDNSbGVIUStQSFJsZUhRZ2VEMGlNVEFpSUhrOUlqUXdJaUJqYkdGemN6MGlZbUZ6WlNJK1JXMWhZM004TDNSbGVIUStQSFJsZUhRZ2VEMGlNVEFpSUhrOUlqWXdJaUJqYkdGemN6MGlZbUZ6WlNJK1RtRjJlU0JUZFdsMFBDOTBaWGgwUGp4MFpYaDBJSGc5SWpFd0lpQjVQU0k0TUNJZ1kyeGhjM005SW1KaGMyVWlQbEJJVUR3dmRHVjRkRDQ4ZEdWNGRDQjRQU0l4TUNJZ2VUMGlNVEF3SWlCamJHRnpjejBpWW1GelpTSStSVzUyYVhKdmJtMWxiblJoYkR3dmRHVjRkRDQ4ZEdWNGRDQjRQU0l4TUNJZ2VUMGlNVEl3SWlCamJHRnpjejBpWW1GelpTSStVbUZ0WVd4c1lXZzhMM1JsZUhRK1BIUmxlSFFnZUQwaU1UQWlJSGs5SWpFME1DSWdZMnhoYzNNOUltSmhjMlVpUGtScGRtVnlaMlZ1ZER3dmRHVjRkRDQ4ZEdWNGRDQjRQU0l4TUNJZ2VUMGlNVFl3SWlCamJHRnpjejBpWW1GelpTSStTbTl1UjI5c1pEd3ZkR1Y0ZEQ0OEwzTjJaejQ9In0=",
     "expected_output": {
       "nft": "Green",
-      "uri": ["tokenUri is IPFS link", "Image is hosted on IPFS"]
+      "uri": ["Metadata stored in tokenUri (on-chain)", "Image is embedded in metadata"]
     },
   },
 }
@@ -81,8 +81,8 @@ describe("evaluateNft", function () {
 
   test('#evaluateNft', async () => {
 
-    const all_nft_examples = [g_lazy_lions_label, g_alpacadabra_label, g_devs_for_revolution_label];
-    // const all_nft_examples = [g_devs_for_revolution_label];
+    // const all_nft_examples = [g_lazy_lions_label, g_alpacadabra_label, g_devs_for_revolution_label];
+    const all_nft_examples = [g_lazy_lions_label, g_alpacadabra_label];
 
     for(let ex_index = 0; ex_index < all_nft_examples.length; ex_index++) {
       const nft_example = all_nft_examples[ex_index];

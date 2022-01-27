@@ -18,8 +18,13 @@
 	let grade = '';
 	let evaluations = [];
 
+	let ipfsNode;
+
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
+
+		// https://discuss.ipfs.io/t/js-ipfs-broke-error-unhandled-rejection-lockexistserror-lock-already-being-held-for-file-ipfs-repo-lock/11172/6
+		ipfsNode = await Ipfs.create({ repo: 'ok' + Math.random() });
 
 		// If you directly load this page, the wallet isn't connected so it can't get blocknumber
 		let blockNumber = 'unknown';
@@ -35,63 +40,22 @@
 		newMetadata['originalTokenMetadata'] = metadata;
 		newMetadata[
 			'description'
-		] = `This is a Snapshot of NFT ${metadata.name} at block #${blockNumber}`;
+		] = `This is a Forever721 Memento™ of NFT ${metadata.name} at block #${blockNumber}`;
 
 		// Then, retrieve the image so you can put it on ipfs
 		let image_url = metadata.image;
-		// returns 'ipfs', 'http', or 'embedded', or 'other'
-		const imageType = await getImageType(image_url);
-		console.log('image type:', imageType);
+		const ipfsImageUrl = uploadToIPFS(image_url);
 
-		// https://discuss.ipfs.io/t/js-ipfs-broke-error-unhandled-rejection-lockexistserror-lock-already-being-held-for-file-ipfs-repo-lock/11172/6
-		const node = await Ipfs.create({ repo: 'ok' + Math.random() });
+		newMetadata['image_url'] = ipfsImageUrl;
+		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
 
-		// TODO: eliminate false positives due to http://gateway/ipfs
-		// They should be treated as IPFS links and may not need to be re-added to ipfs
-		if (imageType == 'http') {
-			// Get image data
-			const response = await fetch(image_url);
-			if (!response.ok) {
-				// TODO: Show fail to fetch in UI
-				console.log('Issue fetching image: ', response);
-				errorPreparingMint = true;
-				return;
-			}
-			let result;
-			try {
-				const imageData = await response.blob();
-				result = await node.add(imageData);
-				console.log('ipfs result', result);
-
-				// overwrite the original image_url with the new ipfs one
-				image_url = 'ipfs://' + result.path + '/';
-			} catch (error) {
-				console.log('Error uploading image to IPFS: ', error);
-				errorPreparingMint = true;
-				return;
-			}
-		}
-
-		newMetadata['image_url'] = image_url;
-		newMetadata['image'] = getPolaroidVersion(image_url);
-
-		console.log('newMetaData imageurl: ', image_url);
-		fetchedImageUrl = getURLFromURI(image_url);
+		console.log('ipfsImageUrl: ', ipfsImageUrl);
+		fetchedImageUrl = getURLFromURI(ipfsImageUrl);
 
 		console.log('fetchedImageUrl: ', fetchedImageUrl);
 
 		// Now newMetadata is complete, upload it so we can use it as the tokenURI
-		try {
-			const result = await node.add(JSON.stringify(newMetadata));
-			console.log('metadata ipfs result', result);
-
-			// if you get ipfs, overwrite the image_url
-			newTokenURI = 'ipfs://' + result.path + '/';
-		} catch (error) {
-			console.log('Error uploading metadata to IPFS: ', error);
-			errorPreparingMint = true;
-			return;
-		}
+		newTokenURI = await uploadMetadataStringToIpfs(JSON.stringify(newMetadata));
 
 		let nftEvaluation = await evaluateNft(moralisData.token_uri);
 		console.log('nftEvaluation', nftEvaluation);
@@ -102,6 +66,53 @@
 
 		readyToMint = true;
 	});
+
+	async function uploadToIPFS(image_url) {
+		// returns 'ipfs', 'http', or 'embedded', or 'other'
+		const imageType = await getImageType(image_url);
+		console.log('image type:', imageType);
+
+		// TODO: eliminate false positives due to http://gateway/ipfs
+		// They should be treated as IPFS links and may not need to be re-added to ipfs
+		if (imageType == 'http') {
+			// Get image data
+			const response = await fetch(image_url);
+
+			if (!response.ok) {
+				// TODO: Show fail to fetch in UI
+				console.log('Issue fetching image: ', response);
+				errorPreparingMint = true;
+				return;
+			}
+
+			try {
+				const imageData = await response.blob();
+				const result = await ipfsNode.add(imageData);
+				console.log('ipfs result', result);
+
+				// overwrite the original image_url with the new ipfs one
+				return 'ipfs://' + result.path + '/';
+			} catch (error) {
+				console.log('Error uploading image to IPFS: ', error);
+				errorPreparingMint = true;
+				return;
+			}
+		}
+	}
+
+	async function uploadMetadataStringToIpfs(metadata) {
+		try {
+			const result = await ipfsNode.add(metadata);
+			console.log('metadata ipfs result', result);
+
+			// if you get ipfs, overwrite the image_url
+			return 'ipfs://' + result.path + '/';
+		} catch (error) {
+			console.log('Error uploading metadata to IPFS: ', error);
+			errorPreparingMint = true;
+			return;
+		}
+	}
 
 	async function mint() {
 		// TODO: mint with newTokenURI
@@ -191,7 +202,7 @@
 		</ul>
 
 		<div>
-			<p class="heading mb-2">Forever721™ Memento Metadata</p>
+			<p class="heading mb-2">Forever721 Memento™ Metadata</p>
 			<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
 				<p>{JSON.stringify(newMetadata || '')}</p>
 			</div>

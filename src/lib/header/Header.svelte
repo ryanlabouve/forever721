@@ -1,16 +1,29 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { user } from '$lib/stores/user';
-	import { connectWallet } from '$lib/utils/connect-wallet';
+	import { connectWallet, disconnectWallet } from '$lib/utils/connect-wallet';
+
+	let showDisconnect = false;
 </script>
 
 <header class="flex px-3 py-8  items-center">
 	<div class="flex-grow font-bold heading">NFTrusty</div>
 
 	{#if $user.walletAddress}
-		<div class="px-2 lonk pretty-lonk">
-			Connected as {$user.walletENSAddress ||
-				`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
+		<div class="relative cursor-pointer" on:mouseenter={() => (showDisconnect = true)}>
+			<div class="px-2 lonk pretty-lonk">
+				Connected as {$user.walletENSAddress ||
+					`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
+			</div>
+			{#if showDisconnect}
+				<div
+					class="px-2 py-1.5 shadow-lg absolute top-full"
+					on:mouseleave={() => (showDisconnect = false)}
+					on:click={() => disconnectWallet()}
+				>
+					Disconnect
+				</div>
+			{/if}
 		</div>
 	{:else}
 		<button on:click={() => connectWallet()} class="px-2 lonk underline cursor-auto"

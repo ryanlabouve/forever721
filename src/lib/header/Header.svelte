@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { user } from '$lib/stores/user';
 	import { connectWallet, disconnectWallet } from '$lib/utils/connect-wallet';
+	import { prettyAddress } from '$lib/utils/functions';
 
 	let showDisconnect = false;
 </script>
@@ -12,8 +13,7 @@
 	{#if $user.walletAddress}
 		<div class="relative cursor-pointer" on:mouseenter={() => (showDisconnect = true)}>
 			<div class="px-2 lonk pretty-lonk">
-				Connected as {$user.walletENSAddress ||
-					`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
+				Connected as {$user.walletENSAddress || prettyAddress($user.walletAddress)}
 			</div>
 			{#if showDisconnect}
 				<div

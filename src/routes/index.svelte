@@ -154,7 +154,7 @@
 </script>
 
 <svelte:head>
-	<title>NFTrusty</title>
+	<title>Forever721</title>
 </svelte:head>
 
 {#if collection.length == 0}

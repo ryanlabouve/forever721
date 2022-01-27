@@ -7,7 +7,7 @@
 </script>
 
 <header class="flex px-3 py-8  items-center">
-	<div class="flex-grow font-bold heading">NFTrusty</div>
+	<div class="flex-grow font-bold heading">Forever721</div>
 
 	{#if $user.walletAddress}
 		<div class="relative cursor-pointer" on:mouseenter={() => (showDisconnect = true)}>

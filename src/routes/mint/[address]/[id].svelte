@@ -3,39 +3,50 @@
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
-	
+	import { getImageType, getURLFromURI, prettyAddress, evaluateNft } from '$lib/utils/functions';
+
 	let errorPreparingMint = false;
 	let readyToMint = false;
 	let newTokenURI = '';
-	
+
 	let newMetadata = {};
-	
-	onMount(async () => {		
-		// If you directly load this page, the wallet isn't connected so it can't get blocknumber 
-		let blockNumber = "unknown";
+	let fetchedImageUrl;
+	let originalContractAddress = $page.params.address;
+	let originalTokenId = $page.params.id;
+	let grade;
+	let evaluations = [];
+
+	onMount(async () => {
+		// If you directly load this page, the wallet isn't connected so it can't get blocknumber
+		let blockNumber = 'unknown';
 		if ($user.provider) {
 			blockNumber = await $user.provider.getBlockNumber();
 		}
-		
+
+		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
+
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
-		const metadata = await getTokenMetadata();
+		const metadata = JSON.parse(moralisData.metadata);
 		newMetadata['originalTokenMetadata'] = metadata;
-		newMetadata['description'] = `This is a Snapshot of NFT ${metadata.name} at block #${blockNumber}`;
-		
+		newMetadata[
+			'description'
+		] = `This is a Snapshot of NFT ${metadata.name} at block #${blockNumber}`;
+
 		// Then, retrieve the image so you can put it on ipfs
 		let image_url = metadata.image;
 		// returns 'ipfs', 'http', or 'embedded', or 'other'
 		const imageType = await getImageType(image_url);
-		console.log("image type:", imageType);
-		
+		console.log('image type:', imageType);
+
 		const node = await Ipfs.create();
-		
+
 		// TODO: eliminate false positives due to http://gateway/ipfs
 		// They should be treated as IPFS links and may not need to be re-added to ipfs
 		if (imageType == 'http') {
-			// Get image data 
+			// Get image data
 			const response = await fetch(image_url);
-			if (!response.ok) {  // TODO: Show fail to fetch in UI 
+			if (!response.ok) {
+				// TODO: Show fail to fetch in UI
 				console.log('Issue fetching image: ', response);
 				errorPreparingMint = true;
 				return;
@@ -44,44 +55,52 @@
 			try {
 				const imageData = await response.blob();
 				result = await node.add(imageData);
-				console.log("ipfs result", result);
-				
+				console.log('ipfs result', result);
+
 				// overwrite the original image_url with the new ipfs one
-				image_url = "ipfs://" + result.path + "/";
+				image_url = 'ipfs://' + result.path + '/';
 			} catch (error) {
 				console.log('Error uploading image to IPFS: ', error);
 				errorPreparingMint = true;
-				return; 
+				return;
 			}
 		}
-		
+
 		newMetadata['image_url'] = image_url;
 		newMetadata['image'] = getPolaroidVersion(image_url);
-		
+
+		fetchedImageUrl = getURLFromURI(image_url);
+
 		// Now newMetadata is complete, upload it so we can use it as the tokenURI
 		try {
 			const result = await node.add(JSON.stringify(newMetadata));
-			console.log("metadata ipfs result", result);
-			
+			console.log('metadata ipfs result', result);
+
 			// if you get ipfs, overwrite the image_url
-			newTokenURI = "ipfs://" + result.path + "/";
+			newTokenURI = 'ipfs://' + result.path + '/';
 		} catch (error) {
 			console.log('Error uploading metadata to IPFS: ', error);
 			errorPreparingMint = true;
-			return; 
+			return;
 		}
-		
+
+		let nftEvaluation = await evaluateNft(moralisData.token_uri);
+		console.log('nftEvaluation', nftEvaluation);
+		grade = nftEvaluation[0];
+		evaluations = nftEvaluation[1];
+
+		console.log('blah:', evaluations);
+
 		readyToMint = true;
-		mint();
 	});
-	
+
 	async function mint() {
 		// TODO: mint with newTokenURI
 	}
-	
-	async function getTokenMetadata() {
-		let url = `https://deep-index.moralis.io/api/v2/nft/${$page.params.address}/${$page.params.id}?chain=eth&format=decimal`
-		
+
+	async function getMoralisData(contractAddress, tokenId) {
+		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=eth&format=decimal`;
+
 		let options: RequestInit = {
 			headers: {
 				Accept: 'application/json',
@@ -89,31 +108,30 @@
 				'X-API-Key': env.moralisApiKey
 			}
 		};
-		
+
 		let resp;
 		let result;
 		try {
 			resp = await fetch(url, options);
 			result = await resp.json();
 		} catch (e) {
-			console.log("problem in fetch or decode of metadata", e);
+			console.log('problem in fetch or decode of metadata', e);
 			errorPreparingMint = true;
 		}
-		console.log ("mint page got metadata: ", result.metadata);
-		
+		console.log('getMoralisData: ', result);
+
 		// To do this right, we need to first request moralis re-sync the NFT, since this metadata may be stale.
-		// More right would be to query the contract. 
-		// Logging this to remind us that this is outdated info. 
-		console.log("this metadata was synced at : ", result.synced_at);
-		
-		return JSON.parse(result.metadata);
+		// More right would be to query the contract.
+		// Logging this to remind us that this is outdated info.
+		console.log('this metadata was synced at : ', result.synced_at);
+
+		return result;
 	}
-	
+
 	function getPolaroidVersion(image_url) {
 		// TODO: magic
 		return image_url;
 	}
-	
 </script>
 
 <div class="bg-zinc-700 text-white py-8">
@@ -144,6 +162,37 @@
 </div>
 
 <!-- TODO: this should be a button with a callback that gets enabled when this bool is true -->
-<div> 
+<div>
 	readyToMint: {readyToMint}
+</div>
+
+<div class="flex flex-row">
+	<div>
+		<img src={fetchedImageUrl} />
+	</div>
+
+	<div>
+		<p>Contract Address <strong>{prettyAddress(originalContractAddress)}</strong></p>
+		<p>Token ID <strong>{originalTokenId}</strong></p>
+
+		<!-- TODO: Abstract into component with nft-thumbnail -->
+		<div class="text-center pt-4">
+			<div class="heading">Our Evaluation</div>
+			<div
+				class:text-gray-600={!grade}
+				class:text-green-600={grade == 'green'}
+				class:text-orange-600={grade == 'yellow'}
+				class:text-red-600={grade == 'red'}
+				class="capitalize"
+			>
+				{grade}
+			</div>
+		</div>
+
+		<ul class="my-4">
+			{#each evaluations as evaluation}
+				<li class="text-sm">{evaluation}</li>
+			{/each}
+		</ul>
+	</div>
 </div>

@@ -4,20 +4,28 @@ import Web3Modal from 'web3modal';
 import { user } from '$lib/stores/user';
 import { get } from 'svelte/store';
 
-const providerOptions = {
-  /* See Provider Options Section */
-};
+let web3Modal;
 
-const web3Modal = new Web3Modal({
-  // network: 'mainnet', // optional
-  // network: 'rinkeby', // optional
-  cacheProvider: true, // optional
-  providerOptions // required
-});
+const getWeb3Modal = () => {
+  const providerOptions = {
+    /* See Provider Options Section */
+  };
+
+  if (!web3Modal) {
+    web3Modal = new Web3Modal({
+      // network: 'mainnet', // optional
+      // network: 'rinkeby', // optional
+      cacheProvider: true, // optional
+      providerOptions // required
+    });
+  }
+
+  return web3Modal;
+}
 
 async function connectWallet(): Promise<UserStore> {
 
-  const instance = await web3Modal.connect();
+  const instance = await getWeb3Modal().connect();
   const provider = new ethers.providers.Web3Provider(instance);
   const signer = provider.getSigner();
   const walletAddress = await signer.getAddress();
@@ -45,7 +53,7 @@ const disconnectWallet = async () => {
       signer: null
     }
   });
-  await web3Modal.clearCachedProvider();
+  await getWeb3Modal().clearCachedProvider();
 };
 
 export { disconnectWallet }

@@ -49,8 +49,10 @@
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
 
+		console.log('fetched metadata image: ', metadata);
 		console.log('ipfsImageUrl: ', ipfsImageUrl);
-		fetchedImageUrl = getURLFromURI(ipfsImageUrl);
+		// fetchedImageUrl = getURLFromURI(ipfsImageUrl);
+		fetchedImageUrl = metadata.image;
 
 		console.log('fetchedImageUrl: ', fetchedImageUrl);
 
@@ -162,14 +164,12 @@
 	</div>
 </div>
 
-<div class="flex flex-row mt-16 mx-auto max-w-lg">
-	<div>
-		{#if fetchedImageUrl}
-			<img class="w-32 h-32" src={fetchedImageUrl} />
-		{:else}
-			<div class="w-32 h-32 bg-gray-100" />
-		{/if}
-	</div>
+<div class="flex flex-row mt-16 mx-auto max-w-3xl">
+	{#if fetchedImageUrl}
+		<img class="w-48 h-48" src={fetchedImageUrl} />
+	{:else}
+		<div class="w-48 h-48 bg-gray-100" />
+	{/if}
 
 	<div class="pl-8">
 		<p class="heading">Contract Address</p>
@@ -195,7 +195,7 @@
 			</div>
 		</div>
 
-		<ul class="my-4">
+		<ul class="mt-2 mb-4">
 			{#each evaluations as evaluation}
 				<li class="text-sm">{evaluation}</li>
 			{/each}

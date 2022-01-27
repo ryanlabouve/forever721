@@ -194,5 +194,10 @@
 				<li class="text-sm">{evaluation}</li>
 			{/each}
 		</ul>
+
+		<div>
+			<p>Original Metadata</p>
+			<p>{JSON.stringify(newMetadata.originalTokenMetadata)}</p>
+		</div>
 	</div>
 </div>

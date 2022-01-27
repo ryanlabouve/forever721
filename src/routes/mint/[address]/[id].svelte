@@ -2,10 +2,6 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
-	// import { tokenUriToMetaData } from '$lib/nft-utils';
-	// import { evaluateNft, getTokenUriType, getImageType } from '$lib/utils/functions';
-	// import defaultAbi from '$lib/defaultAbi';
-	// import { Contract, ethers } from 'ethers';
 	import { user } from '$lib/stores/user';
 	
 	let errorPreparingMint = false;
@@ -14,14 +10,7 @@
 	
 	let newMetadata = {};
 	
-	onMount(async () => {
-		// Do initialization things here
-		
-		// const node1 = await Ipfs.create();
-		// const result = await node1.add("hello world2");
-		// debugger;
-		
-		
+	onMount(async () => {		
 		// If you directly load this page, the wallet isn't connected so it can't get blocknumber 
 		let blockNumber = "unknown";
 		if ($user.provider) {
@@ -57,7 +46,7 @@
 				result = await node.add(imageData);
 				console.log("ipfs result", result);
 				
-				// if you get ipfs, overwrite the image_url
+				// overwrite the original image_url with the new ipfs one
 				image_url = "ipfs://" + result.path + "/";
 			} catch (error) {
 				console.log('Error uploading image to IPFS: ', error);
@@ -91,17 +80,6 @@
 	}
 	
 	async function getTokenMetadata() {
-		// Note(divergio): I could not get this code that reads the contract to work
-		// let nftContract: Contract = new ethers.Contract($page.params.address, defaultAbi, $user.provider);
-		// let tokenUri = await nftContract.tokenURI($page.params.id);
-		// let metadata = await tokenUriToMetaData(tokenUri);
-		
-		// Note(divergio): I am also not sure familiar with how to pass the data in from the home page,
-		// because this is using a route instead of a component.
-		// So I just query moralis again  ¯\_(ツ)_/¯
-		
-		// It's frustrating that the centralized solution seems always to be simpler and expedient.
-		
 		let url = `https://deep-index.moralis.io/api/v2/nft/${$page.params.address}/${$page.params.id}?chain=eth&format=decimal`
 		
 		let options: RequestInit = {

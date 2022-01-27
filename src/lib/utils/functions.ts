@@ -15,11 +15,11 @@ export async function evaluateNft(tokenUri) {
       const metadata = JSON.parse(metadataStr)
       console.log("it is json")
       const [imageEvaluation, imageMessage] = evaluateImage(metadata)
-      return [imageEvaluation, ["Metadata stored in tokenUri (on-chain)", imageMessage], metadata]
+      return [imageEvaluation, ["Metadata stored in TokenURI (on-chain)", imageMessage], metadata]
     } catch (e) {
       console.log(e)
       console.log("it is not json")
-      return ["Unknown", ["Does not match any known tokenUri patterns"], null]
+      return ["Unknown", ["Does not match any known TokenURI patterns"], null]
     }
   } else {
     console.log("it is url")
@@ -34,13 +34,13 @@ export async function evaluateNft(tokenUri) {
 
       if (protocol === "ipfs") {
         const [imageEvaluation, imageMessage] = evaluateImage(metadata)
-        return [imageEvaluation, ["tokenUri is IPFS link", imageMessage], metadata]
+        return [imageEvaluation, ["TokenURI is IPFS link", imageMessage], metadata]
       } else {
-        return ["Red", ["tokenUri contains only link to private server"], metadata]
+        return ["Red", ["TokenURI contains only link to private server"], metadata]
       }
     } catch (e) {
       console.log("it is not json")
-      return ["Unknown", ["Does not match any known tokenUri patterns"], null]
+      return ["Unknown", ["Does not match any known TokenURI patterns"], null]
     }
   }
 }

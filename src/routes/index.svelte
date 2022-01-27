@@ -194,7 +194,7 @@
 {:else}
 	<div class="max-w-4xl m-auto px-3 my-8">
 		<div class="text-xl my-4">Here's what we found when scanning your collection...</div>
-		<div class="grid grid-cols-4 gap-4">
+		<div class="grid grid-cols-3 gap-4">
 			{#each collection as nft}
 				<NftThumbnail {...nft} />
 			{:else}

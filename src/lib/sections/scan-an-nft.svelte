@@ -15,7 +15,8 @@
 	let tokenId: string;
 	let nftContractAddress: string;
 	let openseaUrl: string;
-	let evaluation;
+	let grade;
+	let reasons = [];
 
 	onMount(() => {
 		// TODO: Just for debugging. Delete before prod;
@@ -49,7 +50,7 @@
 	}
 
 	function setNftContractAddress(e) {
-		let id = e.target.value;
+		let address = e.target.value;
 		openseaUrl = `https://opensea.io/assets/${address}/${tokenId}`;
 		nftContractAddress = address;
 	}
@@ -64,11 +65,8 @@
 	async function checkNft(nftContractAddress: string, tokenId: string): Promise<void> {
 		let nftContract: Contract = new ethers.Contract(nftContractAddress, defaultAbi, $user.provider);
 		let tokenUri = await nftContract.tokenURI(tokenId);
-		metaData = await tokenUriToMetaData(tokenUri);
 
-		evaluation = await evaluateNft(metaData);
-
-		console.log(evaluation);
+		[grade, reasons, metaData] = await evaluateNft(tokenUri);
 
 		imageLoaded = true;
 	}
@@ -111,17 +109,51 @@
 			</div>
 			<!-- Form -->
 			{#if imageLoaded}
-				<div>
-					<div class="text-4xl">
-						{evaluation.name}
+				<div class="">
+					<div class="flex items-center mb-2">
+						<div class="text-4xl flex-grow">
+							{#if grade.toLowerCase() === 'green'}
+								✅
+							{/if}
+							{#if grade.toLowerCase() === 'yellow'}
+								⚠️
+							{/if}
+							{#if grade.toLowerCase() === 'red'}
+								️⛔️
+							{/if}
+							{metaData.name}
+						</div>
+
+						<a href={openseaUrl}>View on opensea</a>.
 					</div>
-					Viewing<a href={openseaUrl}>this image</a>.
 
-					<div>Grade</div>
+					<div class="mb-2">
+						{#each reasons as reason}
+							<div>
+								☛ {reason}
+							</div>
+						{/each}
+					</div>
 
-					<div>Metadata</div>
+					<div>
+						<div>Metadata:</div>
+						<textarea class="bg-gray-500 w-full  h-48">
+							{JSON.stringify(metaData)}
+						</textarea>
+					</div>
 
-					<button on:click={() => (imageLoaded = false)}> Close and view another </button>
+					<button on:click={() => (imageLoaded = false)}> Mint a backup</button>
+					<div class="relative my-3">
+						<div class="absolute inset-0 flex items-center" aria-hidden="true">
+							<div class="w-full border-t border-gray-300" />
+						</div>
+						<div class="relative flex justify-center">
+							<span class="px-2 bg-white text-sm text-gray-500 rounded-full px-4"> Or </span>
+						</div>
+					</div>
+					<div class="text-center cursor-pointer" on:click={() => (imageLoaded = false)}>
+						Close and view another
+					</div>
 				</div>
 			{:else}
 				<form
@@ -191,8 +223,7 @@
 <style>
 	input,
 	button {
-		@apply text-gray-600 border border-gray-400 bg-gray-800 text-gray-300 px-2 py-3 w-full rounded focus:border-gray-100
-		focus:text-gray-50 focus:ring-gray-50;
+		@apply text-gray-600 border border-gray-400 bg-gray-800 text-gray-300 px-2 py-3 w-full rounded focus:border-gray-100 focus:text-gray-50 focus:ring-gray-50;
 	}
 
 	input[type='submit'],

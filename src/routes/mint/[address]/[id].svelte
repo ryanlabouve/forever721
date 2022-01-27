@@ -4,6 +4,7 @@
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
 	import { getImageType, getURLFromURI, prettyAddress, evaluateNft } from '$lib/utils/functions';
+	import { connectWallet } from '$lib/utils/connect-wallet';
 
 	let errorPreparingMint = false;
 	let readyToMint = false;
@@ -13,10 +14,12 @@
 	let fetchedImageUrl;
 	let originalContractAddress = $page.params.address;
 	let originalTokenId = $page.params.id;
-	let grade;
+	let grade = '';
 	let evaluations = [];
 
 	onMount(async () => {
+		if (window && window.ethereum?.selectedAddress) connectWallet();
+
 		// If you directly load this page, the wallet isn't connected so it can't get blocknumber
 		let blockNumber = 'unknown';
 		if ($user.provider) {
@@ -38,7 +41,8 @@
 		const imageType = await getImageType(image_url);
 		console.log('image type:', imageType);
 
-		const node = await Ipfs.create();
+		// https://discuss.ipfs.io/t/js-ipfs-broke-error-unhandled-rejection-lockexistserror-lock-already-being-held-for-file-ipfs-repo-lock/11172/6
+		const node = await Ipfs.create({ repo: 'ok' + Math.random() });
 
 		// TODO: eliminate false positives due to http://gateway/ipfs
 		// They should be treated as IPFS links and may not need to be re-added to ipfs
@@ -70,6 +74,8 @@
 		newMetadata['image'] = getPolaroidVersion(image_url);
 
 		fetchedImageUrl = getURLFromURI(image_url);
+
+		console.log('fetchedImageUrl: ', fetchedImageUrl);
 
 		// Now newMetadata is complete, upload it so we can use it as the tokenURI
 		try {
@@ -142,47 +148,30 @@
 	</div>
 </div>
 
-<div>
-	address: {$page.params.address}
-</div>
-<div>
-	id: {$page.params.id}
-</div>
-
-<div>
-	error preparing mint: {errorPreparingMint}
-</div>
-
-<div>
-	newMetadata: {JSON.stringify(newMetadata)}
-</div>
-
-<div>
-	newTokenURI: {JSON.stringify(newTokenURI)}
-</div>
-
-<!-- TODO: this should be a button with a callback that gets enabled when this bool is true -->
-<div>
-	readyToMint: {readyToMint}
-</div>
-
-<div class="flex flex-row">
+<div class="flex flex-row mt-16 mx-auto max-w-lg">
 	<div>
-		<img src={fetchedImageUrl} />
+		{#if fetchedImageUrl}
+			<img class="w-32 h-32" src={fetchedImageUrl} />
+		{:else}
+			<div class="w-32 h-32 bg-gray-100" />
+		{/if}
 	</div>
 
 	<div>
-		<p>Contract Address <strong>{prettyAddress(originalContractAddress)}</strong></p>
-		<p>Token ID <strong>{originalTokenId}</strong></p>
+		<p class="heading">Contract Address</p>
+		<p class="mb-4">{prettyAddress(originalContractAddress)}</p>
+
+		<p class="heading">Token ID</p>
+		<p class="mb-4">{originalTokenId}</p>
 
 		<!-- TODO: Abstract into component with nft-thumbnail -->
-		<div class="text-center pt-4">
+		<div class="">
 			<div class="heading">Our Evaluation</div>
 			<div
 				class:text-gray-600={!grade}
-				class:text-green-600={grade == 'green'}
-				class:text-orange-600={grade == 'yellow'}
-				class:text-red-600={grade == 'red'}
+				class:text-green-600={grade == 'Green'}
+				class:text-orange-600={grade == 'Yellow'}
+				class:text-red-600={grade == 'Red'}
 				class="capitalize"
 			>
 				{grade}
@@ -196,8 +185,18 @@
 		</ul>
 
 		<div>
-			<p>Original Metadata</p>
-			<p>{JSON.stringify(newMetadata.originalTokenMetadata)}</p>
+			<p class="heading mb-2">Forever721™ Memento Metadata</p>
+			<div class="bg-gray-100 p-2 text-xs mb-4">
+				<code>{JSON.stringify(newMetadata || '')}</code>
+			</div>
+		</div>
+
+		<div>
+			<p class="heading mb-2">Original Metadata</p>
+
+			<div class="bg-gray-100 p-2 text-xs">
+				<code>{JSON.stringify(newMetadata.originalTokenMetadata || '')}</code>
+			</div>
 		</div>
 	</div>
 </div>

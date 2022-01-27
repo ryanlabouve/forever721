@@ -22,7 +22,7 @@
 		token_id = token_uri.split('/').slice(-1).join(''); // TODO: do this less terribly
 
 		evaluation = await evaluateNft(token_uri);
-		grade = evaluation[0].toLowerCase();
+		grade = evaluation[0];
 		evaluations = evaluation[1];
 	});
 </script>
@@ -41,10 +41,9 @@
 			<div class="heading">Our Evaluation</div>
 			<div
 				class:text-gray-600={!grade}
-				class:text-green-600={grade == 'green'}
-				class:text-orange-600={grade == 'yellow'}
-				class:text-red-600={grade == 'red'}
-				class="capitalize"
+				class:text-green-600={grade == 'Green'}
+				class:text-orange-600={grade == 'Yellow'}
+				class:text-red-600={grade == 'Red'}
 			>
 				{grade}
 			</div>

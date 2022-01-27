@@ -14,6 +14,7 @@
 	let fetchedImageUrl;
 	let originalContractAddress = $page.params.address;
 	let originalTokenId = $page.params.id;
+	let originalTokenUri = '';
 	let grade = '';
 	let evaluations = [];
 
@@ -27,6 +28,7 @@
 		}
 
 		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
+		originalTokenUri = moralisData.token_uri;
 
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
 		const metadata = JSON.parse(moralisData.metadata);
@@ -73,6 +75,7 @@
 		newMetadata['image_url'] = image_url;
 		newMetadata['image'] = getPolaroidVersion(image_url);
 
+		console.log('newMetaData imageurl: ', image_url);
 		fetchedImageUrl = getURLFromURI(image_url);
 
 		console.log('fetchedImageUrl: ', fetchedImageUrl);
@@ -157,9 +160,12 @@
 		{/if}
 	</div>
 
-	<div>
+	<div class="pl-8">
 		<p class="heading">Contract Address</p>
-		<p class="mb-4">{prettyAddress(originalContractAddress)}</p>
+
+		<a class="block mb-4 underline" href={`https://etherscan.io/address/${originalContractAddress}`}
+			>{prettyAddress(originalContractAddress)}</a
+		>
 
 		<p class="heading">Token ID</p>
 		<p class="mb-4">{originalTokenId}</p>
@@ -186,16 +192,16 @@
 
 		<div>
 			<p class="heading mb-2">Forever721™ Memento Metadata</p>
-			<div class="bg-gray-100 p-2 text-xs mb-4">
-				<code>{JSON.stringify(newMetadata || '')}</code>
+			<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
+				<p>{JSON.stringify(newMetadata || '')}</p>
 			</div>
 		</div>
 
 		<div>
 			<p class="heading mb-2">Original Metadata</p>
 
-			<div class="bg-gray-100 p-2 text-xs">
-				<code>{JSON.stringify(newMetadata.originalTokenMetadata || '')}</code>
+			<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
+				<p>{originalTokenUri}</p>
 			</div>
 		</div>
 	</div>

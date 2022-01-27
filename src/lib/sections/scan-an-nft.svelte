@@ -8,6 +8,8 @@
 	import { onMount } from 'svelte';
 	import { evaluateNft } from '$lib/utils/functions';
 
+	import { connectWallet } from '$lib/utils/connect-wallet';
+
 	let metaData;
 	let imageLoaded: boolean = false;
 	let tokenId: string;
@@ -122,7 +124,10 @@
 					<button on:click={() => (imageLoaded = false)}> Close and view another </button>
 				</div>
 			{:else}
-				<form on:submit|preventDefault={() => checkNft(nftContractAddress, tokenId)}>
+				<form
+					on:submit|preventDefault={() =>
+						$user.walletAddress && checkNft(nftContractAddress, tokenId)}
+				>
 					<div>
 						<div>Opensea URL</div>
 						<div class="flex ">
@@ -161,7 +166,21 @@
 						</div>
 					</div>
 					<div>
-						<input class="border border-white p-2" type="submit" value="Analyze NFT" />
+						<input
+							class:disabled={!$user.walletAddress}
+							class="border border-white p-2"
+							type="submit"
+							value="Analyze NFT"
+						/>
+
+						{#if !$user.walletAddress}
+							<div
+								class="text-xs underline cursor-pointer text-center mt-2"
+								on:click={connectWallet}
+							>
+								Connect Wallet first 🦊!
+							</div>
+						{/if}
 					</div>
 				</form>
 			{/if}
@@ -179,5 +198,9 @@
 	input[type='submit'],
 	button {
 		@apply text-white rounded-full cursor-pointer;
+	}
+
+	.disabled {
+		@apply opacity-60 cursor-not-allowed;
 	}
 </style>

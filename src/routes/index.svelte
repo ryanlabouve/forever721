@@ -17,7 +17,7 @@
 	let collection = [];
 
 	onMount(async () => {
-		if (window?.ethereum?.selectedAddress) connectWallet();
+		if (window && window.ethereum?.selectedAddress) connectWallet();
 	});
 
 	async function getABI() {
@@ -167,11 +167,18 @@
 					improve it.
 				</div>
 				<div>
-					{#if $user.walletAddress}
-						<Button onClick={loadCollection}>🖼 Load your collection 🖼</Button>
-					{:else}
-						<Button onClick={connectWallet}>🦊 Connect Wallet 🦊</Button>
-					{/if}
+					<div class="flex   items-center ">
+						<div class="mr-2">
+							<Button disabled={!$user.walletAddress} onClick={loadCollection}
+								>🖼 Load your collection 🖼</Button
+							>
+						</div>
+						{#if !$user.walletAddress}
+							<div class="text-xs underline cursor-pointer" on:click={connectWallet}>
+								Connect Wallet first 🦊!
+							</div>
+						{/if}
+					</div>
 				</div>
 			</div>
 			<div>

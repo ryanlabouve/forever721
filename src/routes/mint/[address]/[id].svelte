@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { ethers } from 'ethers';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
 	import { getImageType, prettyAddress, evaluateNft, Grade } from '$lib/utils/functions';
 	import { connectWallet } from '$lib/utils/connect-wallet';
+	import { mementoAbi } from '$lib/mementoAbi';
 
 	let errorPreparingMint = false;
 	let readyToMint = false;
@@ -105,10 +107,6 @@
 		}
 	}
 
-	async function mint() {
-		// TODO: mint with newTokenURI
-	}
-
 	async function getMoralisData(contractAddress, tokenId) {
 		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=eth&format=decimal`;
 
@@ -142,6 +140,35 @@
 	function getPolaroidVersion(image_url) {
 		// TODO: magic
 		return image_url;
+	}
+
+	async function mint() {
+		console.log('mint');
+		// TODO: mint with newTokenURI
+
+		let rinkebyContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
+
+		let saddness = new ethers.Contract(rinkebyContractAddress, mementoAbi, $user.signer);
+		let resultOfSadness = await saddness.snapshot(
+			originalContractAddress,
+			originalTokenId,
+			newTokenURI
+		);
+		let resultOfWaitingOnSadness = await resultOfSadness.wait();
+
+		console.log('result:', resultOfWaitingOnSadness);
+
+		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
+		// 	(f) => f.event === 'SnapshotCreated'
+		// );
+
+		// resultOfWaitingOnSadness.to
+		// resultOfWaitingOnSadness.transactionHash
+		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
+
+		// Show a success by reacitng to Emit
 	}
 </script>
 
@@ -206,6 +233,8 @@
 					<p>{originalTokenUri}</p>
 				</div>
 			</div>
+
+			<button on:click={mint}>Mint</button>
 		</div>
 	{:else}
 		<p>Analyzing NFT...</p>

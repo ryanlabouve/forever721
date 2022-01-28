@@ -6,7 +6,7 @@
 	import dummyNftCollection from '$lib/dummyNftCollection';
 	import NftThumbnail from '$lib/nft-thumbnail.svelte';
 	import defaultAbi from '$lib/defaultAbi';
-	import { dopAbi } from '$lib/dopAbi';
+	// import { dopAbi } from '$lib/mementoAbi';
 	import { getURLFromURI } from '$lib/utils/functions';
 
 	import Button from '$lib/ui/button.svelte';
@@ -40,8 +40,8 @@
 
 	async function loadCollection() {
 		// Example wallet with decent # of NFTs
-		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
-		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
+		// let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {
@@ -96,6 +96,7 @@
 		// Doing:
 		// Load ABI
 		// Call dopp contract with params
+		let dopAbi;
 		let saddness = new ethers.Contract(dopContractAddress, dopAbi, $user.signer);
 		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
 		let resultOfWaitingOnSadness = await resultOfSadness.wait();

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import BadPolaroid from '$lib/ui/bad-polaroid.svelte';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
@@ -211,3 +212,7 @@
 		<p>Analyzing NFT...</p>
 	{/if}
 </div>
+
+<BadPolaroid
+	url={'https://ikzttp.mypinata.cloud/ipfs/QmYDvPAXtiJg7s8JdRBSLWdgSphQdac8j1YuQNNxcGE1hg/1948.png'}
+/>

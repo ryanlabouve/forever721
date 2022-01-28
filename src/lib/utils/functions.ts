@@ -55,6 +55,12 @@ export function NftEvaluation(grade, image_grade, uri_type, location_, metadata)
   this.uri_type = uri_type;
   this.image_location = location_;
   this.nft_metadata = metadata;
+
+  // add texts for convenience
+  this.grade_text = nftGradeText(grade);
+  this.image_grade_text = nftGradeText(image_grade);
+  this.uri_type_text = uriTypeText(uri_type);
+  this.image_location_text = imageLocationText(location_);
 }
 
 export function decodeBase64(input) {
@@ -123,7 +129,6 @@ function evaluateImage(metadata) {
     return new ImageEvaluation(Grade.Green, ImageLocation.InMetadata);
 
   const [url, uriType, urlObj] = getResolvableUrl(metadata.image)
-  console.log("EVALUATE IMAGE, URL STUFF IS [" + url + ", " + uriType + "]")
   if (uriType === UriType.IpfsLink)
     return new ImageEvaluation(Grade.Green, ImageLocation.Ipfs);
 

@@ -108,7 +108,7 @@ export async function evaluateNft(tokenUri) {
     try {
       metadataStr = await getMetadataFromUrl(url)
     } catch (e) {
-      console.log(e)
+      console.error(e)
       return new NftEvaluation(Math.min(uriGrade, Grade.Unknown), Grade.Unknown, uriType, ImageLocation.MetadataError, null)
     }
 

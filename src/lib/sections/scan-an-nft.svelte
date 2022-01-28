@@ -9,6 +9,7 @@
 	import { evaluateNft } from '$lib/utils/functions';
 
 	import { connectWallet } from '$lib/utils/connect-wallet';
+	import { goto } from '$app/navigation';
 
 	let metaData;
 	let imageLoaded: boolean = false;
@@ -145,7 +146,7 @@
 						</textarea>
 					</div>
 
-					<button on:click={() => (imageLoaded = false)}> Mint a backup</button>
+					<button on:click={goto(`/mint/${nftContractAddress}/${tokenId}`)}>Mint a backup</button>
 					<div class="relative my-3">
 						<div class="absolute inset-0 flex items-center" aria-hidden="true">
 							<div class="w-full border-t border-gray-300" />

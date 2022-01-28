@@ -19,6 +19,7 @@
 	// TODO: This needs to switch with networks
 	let network = 'rinkeby';
 	let allowDebug = false;
+	let loadedCollection = false;
 
 	onMount(async () => {
 		if (window?.ethereum?.selectedAddress) connectWallet();
@@ -27,8 +28,10 @@
 
 	async function loadCollection() {
 		// Example wallet with decent # of NFTs
-		// let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
-		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=${network}&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=${$user.network.id}&format=decimal`;
+		if (readLS('debugMode')) {
+			url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
+		}
 
 		let options: RequestInit = {
 			headers: {
@@ -40,6 +43,7 @@
 		let resp = await fetch(url, options);
 		let { result } = await resp.json();
 
+		loadedCollection = true;
 		collection = result.reduce((acc, item) => {
 			if (!item.metadata) return acc;
 
@@ -66,7 +70,7 @@
 	<title>Forever721</title>
 </svelte:head>
 
-{#if collection.length == 0}
+{#if !loadedCollection}
 	<div class="max-w-4xl m-auto px-3 my-16">
 		<div class="grid grid-cols-2 gap-4">
 			<div class="flex flex-col justify-center">
@@ -103,7 +107,7 @@
 			{#each collection as nft}
 				<NftThumbnail {...nft} />
 			{:else}
-				No NFTs found!
+				<div class="my-32">No NFTs found! Are you sure you're on the right network?</div>
 			{/each}
 		</div>
 	</div>

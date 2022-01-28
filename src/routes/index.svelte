@@ -6,7 +6,6 @@
 	import dummyNftCollection from '$lib/dummyNftCollection';
 	import NftThumbnail from '$lib/nft-thumbnail.svelte';
 	import defaultAbi from '$lib/defaultAbi';
-	import { dopAbi } from '$lib/dopAbi';
 	import { getURLFromURI } from '$lib/utils/functions';
 
 	import Button from '$lib/ui/button.svelte';
@@ -17,6 +16,9 @@
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
 	let collection = [];
+
+	// TODO: This needs to switch with networks
+	let network = 'rinkeby';
 
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
@@ -40,8 +42,8 @@
 
 	async function loadCollection() {
 		// Example wallet with decent # of NFTs
-		let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
-		// let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=eth&format=decimal`;
+		// let url = `https://deep-index.moralis.io/api/v2/0x4e320fd00807f015f3c58d0d49edda2db78963fc/nft?chain=eth&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/${$user.walletAddress}/nft?chain=${network}&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {
@@ -66,6 +68,7 @@
 					image_url: getURLFromURI(metadata.image),
 					description: metadata.name,
 					created_date: item.block_number,
+					token_id: item.token_id,
 					token_uri: item.token_uri,
 					token_address: item.token_address
 				}
@@ -96,6 +99,7 @@
 		// Doing:
 		// Load ABI
 		// Call dopp contract with params
+		let dopAbi;
 		let saddness = new ethers.Contract(dopContractAddress, dopAbi, $user.signer);
 		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
 		let resultOfWaitingOnSadness = await resultOfSadness.wait();

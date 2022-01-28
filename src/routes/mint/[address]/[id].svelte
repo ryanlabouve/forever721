@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { ethers } from 'ethers';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
 	import { getImageType, prettyAddress, evaluateNft, Grade } from '$lib/utils/functions';
 	import { connectWallet } from '$lib/utils/connect-wallet';
+	import { mementoAbi } from '$lib/mementoAbi';
 
 	let errorPreparingMint = false;
 	let readyToMint = false;
@@ -19,6 +21,11 @@
 
 	let ipfsNode;
 
+	// TODO: This needs to switch with networks
+	let network = 'rinkeby';
+	// TODO: mainnet address too and switching between them
+	let mementoContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
+
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
 
@@ -32,11 +39,13 @@
 		}
 
 		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
+		// console.log('moralis: ', moralisData);
 		originalTokenUri = moralisData.token_uri;
 
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
 		const metadata = JSON.parse(moralisData.metadata);
 		newMetadata['originalTokenMetadata'] = metadata;
+		newMetadata['name'] = `(Memento) ${metadata.name}`;
 		newMetadata[
 			'description'
 		] = `This is a Forever721 Memento™ of NFT ${metadata.name} at block #${blockNumber}`;
@@ -47,6 +56,8 @@
 
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
+
+		// console.log('newmetadata: ', newMetadata);
 
 		fetchedImageUrl = metadata.image;
 
@@ -105,12 +116,8 @@
 		}
 	}
 
-	async function mint() {
-		// TODO: mint with newTokenURI
-	}
-
 	async function getMoralisData(contractAddress, tokenId) {
-		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=eth&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${network}&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {
@@ -142,6 +149,30 @@
 	function getPolaroidVersion(image_url) {
 		// TODO: magic
 		return image_url;
+	}
+
+	async function mint() {
+		let contract = new ethers.Contract(mementoContractAddress, mementoAbi, $user.signer);
+		let txn = await contract.snapshot(originalContractAddress, originalTokenId, newTokenURI);
+		let result = await txn.wait();
+
+		console.log('result:', result);
+
+		//
+		// TODO: Show a success here
+		//
+
+		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
+		// 	(f) => f.event === 'SnapshotCreated'
+		// );
+
+		// resultOfWaitingOnSadness.to
+		// resultOfWaitingOnSadness.transactionHash
+		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
+		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
+
+		// Show a success by reacitng to Emit
 	}
 </script>
 
@@ -206,6 +237,11 @@
 					<p>{originalTokenUri}</p>
 				</div>
 			</div>
+
+			<button
+				class="w-32 items-center px-4.5 py-2.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-zinc-600 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
+				on:click={mint}>Mint</button
+			>
 		</div>
 	{:else}
 		<p>Analyzing NFT...</p>

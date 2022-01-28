@@ -11,6 +11,10 @@
 	let errorPreparingMint = false;
 	let readyToMint = false;
 	let newTokenURI = '';
+	let transactionStarted: boolean = false;
+	let successfullyMinted: boolean = false;
+	let transactionHash: string;
+	let newTokenId: string;
 
 	let newMetadata = {};
 	let fetchedImageUrl;
@@ -153,27 +157,23 @@
 	}
 
 	async function mint() {
+		transactionStarted = true;
+
 		let contract = new ethers.Contract(mementoContractAddress, mementoAbi, $user.signer);
 		let txn = await contract.snapshot(originalContractAddress, originalTokenId, newTokenURI);
 		let result = await txn.wait();
 
+		transactionStarted = false;
 		console.log('result:', result);
 
-		//
-		// TODO: Show a success here
-		//
-
-		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
-		// 	(f) => f.event === 'SnapshotCreated'
-		// );
-
-		// resultOfWaitingOnSadness.to
-		// resultOfWaitingOnSadness.transactionHash
-		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
-
-		// Show a success by reacitng to Emit
+		// TODO: If not an owner, test failure is try/catch or something else?
+		let success = result.events.some((f) => f.event === 'Transfer');
+		let tokenId = result.events[0].args[2];
+		mementoContractAddress;
+		successfullyMinted = true;
+		transactionHash = txn.hash;
+		newTokenId = tokenId;
+		// TODO: Do a better success screen
 	}
 </script>
 
@@ -199,7 +199,7 @@
 {/if}
 
 <div class="flex flex-row my-16 mx-auto max-w-3xl">
-	{#if readyToMint}
+	{#if readyToMint && !successfullyMinted}
 		{#if fetchedImageUrl}
 			<img class="w-48 h-48" src={fetchedImageUrl} />
 		{:else}
@@ -254,10 +254,40 @@
 
 			<button
 				class="w-32 items-center px-4.5 py-2.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-zinc-600 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
-				on:click={mint}>Mint</button
+				on:click={() => !transactionStarted && mint()}
 			>
+				{#if transactionStarted}
+					⏳ Minting (check metamask)
+				{:else}
+					Mint
+				{/if}
+			</button>
 		</div>
 	{:else}
-		<p class:hidden={$user?.network?.nickname !== 'rinkeby'}>Analyzing NFT...</p>
+		<p class:hidden={$user?.network?.nickname !== 'rinkeby' || successfullyMinted}>
+			Analyzing NFT...
+		</p>
+	{/if}
+
+	{#if successfullyMinted}
+		<div>
+			Minted successfully! View on <a
+				class="lonk"
+				href={`https://rinkeby.etherscan.io/tx/${transactionHash}`}
+				target="_blank">Etherscan</a
+			>
+			or
+			<a
+				class="lonk"
+				href={`https://testnets.opensea.io/assets/${mementoContractAddress}/${newTokenId}`}
+				target="_blank">OpenSea</a
+			>.
+		</div>
 	{/if}
 </div>
+
+<style>
+	.lonk {
+		@apply text-blue-500 underline;
+	}
+</style>

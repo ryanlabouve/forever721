@@ -62,7 +62,7 @@ export function ImageEvaluation(grade: Grade, location: ImageLocation): void {
   this.image_location = location
 }
 
-export function NftEvaluation(grade: Grade, image_grade: Grade, uri_type: number, location: number, metadata: any): void {
+export function NftEvaluation(grade: Grade, image_grade: Grade, uri_type: UriType, location: ImageLocation, metadata: any): void {
   this.grade = grade;
   this.image_grade = image_grade;
   this.uri_type = uri_type;
@@ -85,42 +85,28 @@ export function decodeBase64(input: string): string {
 }
 
 export async function evaluateNft(tokenUri) {
-  console.log("tokenUri: ", tokenUri);
-
   if (isBase64(tokenUri)) {
-    console.log("it is base64")
     const metadataStr = decodeBase64(cleanBase64(tokenUri))
-    console.log(metadataStr)
 
     try {
       const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
       const evaluation = evaluateImage(metadata)
 
       // if metadata on-chain, overall grade is whatever the image grade is
       return new NftEvaluation(evaluation.image_grade, evaluation.image_grade, UriType.OnChain, evaluation.image_location, metadata);
     } catch (e) {
-      console.log(e)
-      console.log("it is not json")
       return new NftEvaluation(Grade.Unknown, Grade.Unknown, UriType.OnChain, ImageLocation.Unknown, null);
     }
   } else {
-    console.log("it is url")
     const [url, uriType, urlObj] = getResolvableUrl(tokenUri)
-    console.log("resolvable url is " + url)
     const metadataStr = await getMetadataFromUrl(url)
-    console.log(metadataStr)
-
     const uriGrade = gradeUriType(uriType);
 
     try {
       const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
-
       const evaluation = evaluateImage(metadata)
       return new NftEvaluation(Math.min(uriGrade, evaluation.image_grade), evaluation.image_grade, uriType, evaluation.image_location, metadata);
     } catch (e) {
-      console.log("it is not json");
       return new NftEvaluation(uriGrade, Grade.Unknown, uriType, ImageLocation.Unknown, null);
     }
   }
@@ -200,31 +186,22 @@ function getResolvableUrl(uri) {
 
 // returns 'ipfs', 'http', or 'embedded', or 'other'
 export async function getTokenUriType(tokenUri: string): Promise<string> {
-  console.log("tokenUri: ", tokenUri);
-
   if (isBase64(tokenUri)) {
-    console.log("it is base64")
     const metadataStr = atob(cleanBase64(tokenUri))
-    console.log(metadataStr)
 
     try {
       /*const metadata = */JSON.parse(metadataStr)
-      console.log("it is json")
       return 'embedded';
     } catch (e) {
-      console.log(e)
-      console.log("base64 tokenUri is not json")
+      console.error(e)
       return 'other';
     }
   } else {
     console.log("it is url")
     const [url, uriType/*, urlObj*/] = getResolvableUrl(tokenUri)
-    console.log("resolvable url is " + url)
     const metadataStr = await getMetadataFromUrl(url)
-    console.log(metadataStr)
     try {
-      const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
+      JSON.parse(metadataStr)
 
       if (uriType === UriType.IpfsLink || uriType === UriType.ArweaveLink) {
         return 'ipfs';
@@ -232,7 +209,7 @@ export async function getTokenUriType(tokenUri: string): Promise<string> {
         return 'http';
       }
     } catch (e) {
-      console.log("it is not json")
+      console.error("it is not json")
       return 'other';
     }
   }
@@ -292,6 +269,6 @@ export function getURLFromURI(uri) {
   return uri;
 }
 
-export function prettyAddress(address) {
+export function prettyAddress(address: string): string {
   return `${address.slice(0, 2)}...${address.slice(-4)}`
 }

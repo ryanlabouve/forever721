@@ -10,6 +10,7 @@
 
 	import Button from '$lib/ui/button.svelte';
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
+	import LearnMore from '$lib/sections/learn-more.svelte';
 	import { connectWallet } from '$lib/utils/connect-wallet';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
@@ -202,11 +203,7 @@
 
 <ScanAnNft />
 
-<div class="bg-zinc-200  py-8">
-	<div class="max-w-4xl m-auto px-3 my-8">
-		<div class="heading text-5xl">Learn More</div>
-	</div>
-</div>
+<LearnMore />
 
 <div class="bg-pink-300 py-8">
 	<div class="max-w-3xl m-auto px-3 ">

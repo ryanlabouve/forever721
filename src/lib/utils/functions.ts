@@ -1,15 +1,18 @@
 import fetch from 'cross-fetch'
-
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 const isNode = new Function("try {return this===global;}catch(e){return false;}");
 
 const ipfsGetEndpoint = "https://ipfs.io/ipfs/"
 const base64Regex = new RegExp("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
 
-export const Grade = {
-  Red: 0, Unknown: 1, Yellow: 2, Green: 3
+export enum Grade {
+  Red = 0,
+  Unknown,
+  Yellow,
+  Green
 }
-export function nftGradeText(grade) {
+
+export function nftGradeText(grade: Grade): string {
   switch (grade) {
     case Grade.Green: return "Great";
     case Grade.Yellow: return "Caution";
@@ -18,24 +21,34 @@ export function nftGradeText(grade) {
   }
 }
 
-export const UriType = {
-  Unknown: 0, PrivateServer: 1, IpfsLink: 2, OnChain: 3, ArweaveLink: 4
+export enum UriType {
+  Unknown = 0,
+  PrivateServer,
+  IpfsLink,
+  OnChain,
+  ArweaveLink
 }
-export function uriTypeText(type) {
+
+export function uriTypeText(type: UriType): string {
   switch (type) {
-    case UriType.PrivateServer: return "TokenURI contains only link to private server";
-    case UriType.IpfsLink: return "TokenURI is IPFS link";
-    case UriType.ArweaveLink: return "TokenURI is Arweave link";
-    case UriType.OnChain: return "Metadata stored in TokenURI (on-chain)";
-    default: return "Does not match any known TokenURI patterns";
+    case UriType.PrivateServer: return "tokenURI contains only link to private server";
+    case UriType.IpfsLink: return "tokenURI is IPFS link";
+    case UriType.ArweaveLink: return "tokenURI is Arweave link";
+    case UriType.OnChain: return "Metadata stored in tokenURI (on-chain)";
+    default: return "Does not match any known tokenURI patterns";
   }
 }
 
-export const ImageLocation = {
-  Unknown: 0, PrivateServer: 1, Ipfs: 2, Arweave: 3, InMetadata: 4
+export enum ImageLocation {
+  Unknown = 0,
+  PrivateServer,
+  Ipfs,
+  Arweave,
+  InMetadata
 }
-export function imageLocationText(grade) {
-  switch (grade) {
+
+export function imageLocationText(location: ImageLocation): string {
+  switch (location) {
     case ImageLocation.InMetadata: return "Image is embedded in metadata";
     case ImageLocation.Ipfs: return "Image is hosted on IPFS";
     case ImageLocation.Arweave: return "Image is hosted on Arweave";
@@ -44,26 +57,26 @@ export function imageLocationText(grade) {
   }
 }
 
-export function ImageEvaluation(grade, location_) {
+export function ImageEvaluation(grade: Grade, location: ImageLocation): void {
   this.image_grade = grade;
-  this.image_location = location_
+  this.image_location = location
 }
 
-export function NftEvaluation(grade, image_grade, uri_type, location_, metadata) {
+export function NftEvaluation(grade: Grade, image_grade: Grade, uri_type: UriType, location: ImageLocation, metadata: any): void {
   this.grade = grade;
   this.image_grade = image_grade;
   this.uri_type = uri_type;
-  this.image_location = location_;
+  this.image_location = location;
   this.nft_metadata = metadata;
 
   // add texts for convenience
   this.grade_text = nftGradeText(grade);
   this.image_grade_text = nftGradeText(image_grade);
   this.uri_type_text = uriTypeText(uri_type);
-  this.image_location_text = imageLocationText(location_);
+  this.image_location_text = imageLocationText(location);
 }
 
-export function decodeBase64(input) {
+export function decodeBase64(input: string): string {
   if (isBrowser()) {
     return atob(cleanBase64(input));
   } else {
@@ -72,42 +85,30 @@ export function decodeBase64(input) {
 }
 
 export async function evaluateNft(tokenUri) {
-  console.log("tokenUri: ", tokenUri);
-
   if (isBase64(tokenUri)) {
-    console.log("it is base64")
     const metadataStr = decodeBase64(cleanBase64(tokenUri))
-    console.log(metadataStr)
 
     try {
       const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
       const evaluation = evaluateImage(metadata)
 
       // if metadata on-chain, overall grade is whatever the image grade is
       return new NftEvaluation(evaluation.image_grade, evaluation.image_grade, UriType.OnChain, evaluation.image_location, metadata);
     } catch (e) {
-      console.log(e)
-      console.log("it is not json")
+      console.error(e);
       return new NftEvaluation(Grade.Unknown, Grade.Unknown, UriType.OnChain, ImageLocation.Unknown, null);
     }
   } else {
-    console.log("it is url")
     const [url, uriType, urlObj] = getResolvableUrl(tokenUri)
-    console.log("resolvable url is " + url)
     const metadataStr = await getMetadataFromUrl(url)
-    console.log(metadataStr)
-
     const uriGrade = gradeUriType(uriType);
 
     try {
       const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
-
       const evaluation = evaluateImage(metadata)
       return new NftEvaluation(Math.min(uriGrade, evaluation.image_grade), evaluation.image_grade, uriType, evaluation.image_location, metadata);
     } catch (e) {
-      console.log("it is not json");
+      console.error(e);
       return new NftEvaluation(uriGrade, Grade.Unknown, uriType, ImageLocation.Unknown, null);
     }
   }
@@ -142,12 +143,12 @@ function evaluateImage(metadata) {
   return new ImageEvaluation(Grade.Yellow, ImageLocation.Unknown);
 }
 
-export function isBase64(str) {
+export function isBase64(str): boolean {
   if (typeof str !== 'string') return false; // TODO sad note
   return base64Regex.test(cleanBase64(str))
 }
 
-function cleanBase64(str) {
+function cleanBase64(str): string {
   let cleanStr = str
   if (str.includes(";base64,")) {
     cleanStr = str.split(";base64,")[1]
@@ -155,7 +156,7 @@ function cleanBase64(str) {
   return cleanStr
 }
 
-async function getMetadataFromUrl(url) {
+async function getMetadataFromUrl(url): Promise<string> {
   if (url?.split("://").length !== 2)
     return ""; // TODO: do this better
 
@@ -186,33 +187,23 @@ function getResolvableUrl(uri) {
 }
 
 // returns 'ipfs', 'http', or 'embedded', or 'other'
-export async function getTokenUriType(tokenUri) {
-  console.log("tokenUri: ", tokenUri);
-
+export async function getTokenUriType(tokenUri: string): Promise<string> {
   if (isBase64(tokenUri)) {
-    console.log("it is base64")
     const metadataStr = atob(cleanBase64(tokenUri))
-    console.log(metadataStr)
 
     try {
-      const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
+      /*const metadata = */JSON.parse(metadataStr)
       return 'embedded';
     } catch (e) {
-      console.log(e)
-      console.log("base64 tokenUri is not json")
+      console.error(e)
       return 'other';
     }
   } else {
     console.log("it is url")
-    const [url, uriType, urlObj] = getResolvableUrl(tokenUri)
-    console.log("resolvable url is " + url)
+    const [url, uriType/*, urlObj*/] = getResolvableUrl(tokenUri)
     const metadataStr = await getMetadataFromUrl(url)
-    console.log(metadataStr)
-
     try {
-      const metadata = JSON.parse(metadataStr)
-      console.log("it is json")
+      JSON.parse(metadataStr)
 
       if (uriType === UriType.IpfsLink || uriType === UriType.ArweaveLink) {
         return 'ipfs';
@@ -220,14 +211,14 @@ export async function getTokenUriType(tokenUri) {
         return 'http';
       }
     } catch (e) {
-      console.log("it is not json")
+      console.error("it is not json")
       return 'other';
     }
   }
 }
 
 // returns 'ipfs', 'http', or 'embedded', or 'other'
-export async function getImageType(imageValue) {
+export async function getImageType(imageValue): Promise<string> {
   if (typeof imageValue === "string" && imageValue.startsWith("data:image")) {
     return 'embedded';
   } else {
@@ -280,6 +271,6 @@ export function getURLFromURI(uri) {
   return uri;
 }
 
-export function prettyAddress(address) {
+export function prettyAddress(address: string): string {
   return `${address.slice(0, 2)}...${address.slice(-4)}`
 }

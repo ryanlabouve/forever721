@@ -48,19 +48,12 @@
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
 
-		console.log('fetched metadata image: ', metadata);
-		console.log('ipfsImageUrl: ', ipfsImageUrl);
-		// fetchedImageUrl = getURLFromURI(ipfsImageUrl);
 		fetchedImageUrl = metadata.image;
-
-		console.log('fetchedImageUrl: ', fetchedImageUrl);
 
 		// Now newMetadata is complete, upload it so we can use it as the tokenURI
 		newTokenURI = await uploadMetadataStringToIpfs(JSON.stringify(newMetadata));
 
 		evaluation = await evaluateNft(moralisData.token_uri);
-
-		console.log('evaluation:', evaluation);
 
 		readyToMint = true;
 	});

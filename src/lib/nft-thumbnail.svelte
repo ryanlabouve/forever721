@@ -24,8 +24,6 @@
 		const evaluation = await evaluateNft(token_uri);
 		grade = evaluation.grade;
 		grade_text = evaluation.grade_text;
-
-		console.log('grade', grade);
 		evaluations = [evaluation.uri_type_text, evaluation.image_location_text];
 	});
 </script>

@@ -12,6 +12,7 @@
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 	import LearnMore from '$lib/sections/learn-more.svelte';
 	import { connectWallet } from '$lib/utils/connect-wallet';
+	import { readLS, writeLS } from '$lib/local-storage';
 
 	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
 	let contractABI: string = '';
@@ -19,9 +20,11 @@
 
 	// TODO: This needs to switch with networks
 	let network = 'rinkeby';
+	let allowDebug = false;
 
 	onMount(async () => {
-		if (window && window.ethereum?.selectedAddress) connectWallet();
+		if (window?.ethereum?.selectedAddress) connectWallet();
+		if (window?.location?.host === 'localhost:3000') allowDebug = true;
 	});
 
 	async function getABI() {
@@ -170,15 +173,25 @@
 
 <LearnMore />
 
-<div class="bg-pink-300 py-8">
-	<div class="max-w-3xl m-auto px-3 ">
-		<div class="text-2xl text-white">DEBUG</div>
-		<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
-		<Button onClick={() => loadCollection()}>Load Collection</Button>
-		<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
-		<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>
+{#if allowDebug}
+	<div class="bg-pink-300 py-8">
+		<div class="max-w-3xl m-auto px-3 ">
+			<div class="text-2xl text-white">DEBUG</div>
+			<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
+			<Button onClick={() => loadCollection()}>Load Collection</Button>
+			<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
+			<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>
+			<div>
+				<input
+					type="checkbox"
+					checked={!!readLS('debugMode')}
+					on:click={() => writeLS('debugMode', !readLS('debugMode'))}
+				/>
+				Debug Mode
+			</div>
+		</div>
 	</div>
-</div>
+{/if}
 
 <div class="py-8">
 	<div class="max-w-4xl m-auto px-3 my-8">

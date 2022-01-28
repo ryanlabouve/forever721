@@ -1,6 +1,7 @@
 <script type="ts">
 	import { user } from '$lib/stores/user';
 	import { connectWallet, disconnectWallet } from '$lib/utils/connect-wallet';
+	import { prettyAddress } from '$lib/utils/functions';
 
 	let showMenu = false;
 
@@ -24,8 +25,7 @@
 				style="background-color: {$user.network.color};"
 				class=" w-3 h-3 rounded-full mr-2 mt-0.5"
 			/>
-			{$user.walletENSAddress ||
-				`${$user.walletAddress.slice(0, 2)}...${$user.walletAddress.slice(-4)}`}
+			{$user.walletENSAddress || prettyAddress($user.walletAddress)}
 			<img src="/images/chevron-down.svg" class="w-3 h-3 ml-1 mt-0.5" />
 		</div>
 		{#if showMenu}

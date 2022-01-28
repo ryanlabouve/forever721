@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
-	import { getImageType, getURLFromURI, prettyAddress, evaluateNft } from '$lib/utils/functions';
+	import { getImageType, prettyAddress, evaluateNft, Grade } from '$lib/utils/functions';
 	import { connectWallet } from '$lib/utils/connect-wallet';
 
 	let errorPreparingMint = false;
@@ -15,8 +15,7 @@
 	let originalContractAddress = $page.params.address;
 	let originalTokenId = $page.params.id;
 	let originalTokenUri = '';
-	let grade = '';
-	let evaluations = [];
+	let evaluation;
 
 	let ipfsNode;
 
@@ -59,12 +58,9 @@
 		// Now newMetadata is complete, upload it so we can use it as the tokenURI
 		newTokenURI = await uploadMetadataStringToIpfs(JSON.stringify(newMetadata));
 
-		let nftEvaluation = await evaluateNft(moralisData.token_uri);
-		console.log('nftEvaluation', nftEvaluation);
-		grade = nftEvaluation[0];
-		evaluations = nftEvaluation[1];
+		evaluation = await evaluateNft(moralisData.token_uri);
 
-		console.log('blah:', evaluations);
+		console.log('evaluation:', evaluation);
 
 		readyToMint = true;
 	});
@@ -165,55 +161,60 @@
 </div>
 
 <div class="flex flex-row mt-16 mx-auto max-w-3xl">
-	{#if fetchedImageUrl}
-		<img class="w-48 h-48" src={fetchedImageUrl} />
-	{:else}
-		<div class="w-48 h-48 bg-gray-100" />
-	{/if}
+	{#if readyToMint}
+		{#if fetchedImageUrl}
+			<img class="w-48 h-48" src={fetchedImageUrl} />
+		{:else}
+			<div class="w-48 h-48 bg-gray-100" />
+		{/if}
 
-	<div class="pl-8">
-		<p class="heading">Contract Address</p>
+		<div class="pl-8">
+			<p class="heading">Contract Address</p>
 
-		<a class="block mb-4 underline" href={`https://etherscan.io/address/${originalContractAddress}`}
-			>{prettyAddress(originalContractAddress)}</a
-		>
-
-		<p class="heading">Token ID</p>
-		<p class="mb-4">{originalTokenId}</p>
-
-		<!-- TODO: Abstract into component with nft-thumbnail -->
-		<div class="">
-			<div class="heading">Our Evaluation</div>
-			<div
-				class:text-gray-600={!grade}
-				class:text-green-600={grade == 'Green'}
-				class:text-orange-600={grade == 'Yellow'}
-				class:text-red-600={grade == 'Red'}
-				class="capitalize"
+			<a
+				class="block mb-4 underline"
+				href={`https://etherscan.io/address/${originalContractAddress}`}
+				>{prettyAddress(originalContractAddress)}</a
 			>
-				{grade}
+
+			<p class="heading">Token ID</p>
+			<p class="mb-4">{originalTokenId}</p>
+
+			<!-- TODO: Abstract into component with nft-thumbnail -->
+			<div class="">
+				<div class="heading">Our Evaluation</div>
+				<div
+					class:text-gray-600={!evaluation.grade}
+					class:text-green-600={evaluation.grade == Grade.Green}
+					class:text-orange-600={evaluation.grade == Grade.Yellow}
+					class:text-red-600={evaluation.grade == Grade.Red}
+					class="capitalize"
+				>
+					{evaluation.grade_text}
+				</div>
+			</div>
+
+			<ul class="mt-2 mb-4">
+				<li class="text-sm">{evaluation.image_location_text}</li>
+				<li class="text-sm">{evaluation.uri_type_text}</li>
+			</ul>
+
+			<div>
+				<p class="heading mb-2">Forever721 Memento™ Metadata</p>
+				<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
+					<p>{JSON.stringify(newMetadata || '')}</p>
+				</div>
+			</div>
+
+			<div>
+				<p class="heading mb-2">Original Metadata</p>
+
+				<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
+					<p>{originalTokenUri}</p>
+				</div>
 			</div>
 		</div>
-
-		<ul class="mt-2 mb-4">
-			{#each evaluations as evaluation}
-				<li class="text-sm">{evaluation}</li>
-			{/each}
-		</ul>
-
-		<div>
-			<p class="heading mb-2">Forever721 Memento™ Metadata</p>
-			<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
-				<p>{JSON.stringify(newMetadata || '')}</p>
-			</div>
-		</div>
-
-		<div>
-			<p class="heading mb-2">Original Metadata</p>
-
-			<div class="bg-gray-100 p-2 text-xs mb-4 max-w-xl break-words">
-				<p>{originalTokenUri}</p>
-			</div>
-		</div>
-	</div>
+	{:else}
+		<p>Analyzing NFT...</p>
+	{/if}
 </div>

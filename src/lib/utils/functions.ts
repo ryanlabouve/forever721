@@ -1,6 +1,7 @@
 import fetch from 'cross-fetch'
-const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
-const isNode=new Function("try {return this===global;}catch(e){return false;}");
+
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+const isNode = new Function("try {return this===global;}catch(e){return false;}");
 
 const ipfsGetEndpoint = "https://ipfs.io/ipfs/"
 const base64Regex = new RegExp("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
@@ -9,10 +10,10 @@ export const Grade = {
   Red: 0, Unknown: 1, Yellow: 2, Green: 3
 }
 export function nftGradeText(grade) {
-  switch(grade) {
-    case Grade.Green: return "Green";
-    case Grade.Yellow: return "Yellow";
-    case Grade.Red: return "Red";
+  switch (grade) {
+    case Grade.Green: return "Standard";
+    case Grade.Yellow: return "Caution";
+    case Grade.Red: return "Warning";
     default: return "Unknown";
   }
 }
@@ -21,20 +22,20 @@ export const UriType = {
   Unknown: 0, PrivateServer: 1, IpfsLink: 2, OnChain: 3, ArweaveLink: 4
 }
 export function uriTypeText(type) {
-  switch(type) {
-    case UriType.PrivateServer: return "TokenUri contains only link to private server";
-    case UriType.IpfsLink: return "TokenUri is IPFS link";
-    case UriType.ArweaveLink: return "TokenUri is Arweave link";
-    case UriType.OnChain: return "Metadata stored in TokenUri (on-chain)";
-    default: return "Does not match any known tokenUri patterns";
+  switch (type) {
+    case UriType.PrivateServer: return "TokenURI contains only link to private server";
+    case UriType.IpfsLink: return "TokenURI is IPFS link";
+    case UriType.ArweaveLink: return "TokenURI is Arweave link";
+    case UriType.OnChain: return "Metadata stored in TokenURI (on-chain)";
+    default: return "Does not match any known TokenURI patterns";
   }
 }
 
-export const ImageLocation ={
+export const ImageLocation = {
   Unknown: 0, PrivateServer: 1, Ipfs: 2, Arweave: 3, InMetadata: 4
 }
 export function imageLocationText(grade) {
-  switch(grade) {
+  switch (grade) {
     case ImageLocation.InMetadata: return "Image is embedded in metadata";
     case ImageLocation.Ipfs: return "Image is hosted on IPFS";
     case ImageLocation.Arweave: return "Image is hosted on Arweave";
@@ -65,7 +66,7 @@ export function NftEvaluation(grade, image_grade, uri_type, location_, metadata)
 export function decodeBase64(input) {
   if (isBrowser()) {
     return atob(cleanBase64(input));
-  }  else {
+  } else {
     return Buffer.from(cleanBase64(input), 'base64').toString();
   }
 }
@@ -113,7 +114,7 @@ export async function evaluateNft(tokenUri) {
 }
 
 function gradeUriType(uriType) {
-  switch(uriType) {
+  switch (uriType) {
     case UriType.IpfsLink:
     case UriType.ArweaveLink:
     case UriType.OnChain:
@@ -234,7 +235,7 @@ export async function getImageType(imageValue) {
     if (uriType === UriType.IpfsLink) {
       return 'ipfs';
     } else if (uriType === UriType.PrivateServer || uriType === UriType.ArweaveLink) {
-        // I'm ignoring arweave for now, treat it as http
+      // I'm ignoring arweave for now, treat it as http
       return 'http';
     } else {
       return 'other';

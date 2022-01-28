@@ -31,7 +31,7 @@
 			{name}
 		</div>
 
-		<img src={image_url} alt={name} class="mx-auto w-32 pb-4" />
+		<img src={image_url} alt={name} class="mx-auto max-w-32 max-h-32 pb-4" />
 
 		<hr />
 

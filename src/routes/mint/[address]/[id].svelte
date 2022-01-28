@@ -26,10 +26,10 @@
 	let mementoContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
 
 	onMount(async () => {
-		if (window && window.ethereum?.selectedAddress) connectWallet();
+		if (window && window.ethereum?.selectedAddress) await connectWallet();
 
 		// Early Exit if not on right network
-		if ($user.network.name !== 'rinkeby') {
+		if ($user.network.nickname !== 'rinkeby') {
 			return;
 		}
 
@@ -185,7 +185,7 @@
 	</div>
 </div>
 
-{#if $user?.network?.name !== 'rinkeby'}
+{#if $user?.network?.nickname !== 'rinkeby'}
 	<div class="bg-pink-700 text-white text-2xl py-8">
 		<div class="max-w-4xl m-auto px-3 my-8">
 			<div class="flex items-center mb-8">
@@ -198,7 +198,7 @@
 	</div>
 {/if}
 
-<div class="flex flex-row mt-16 mx-auto max-w-3xl">
+<div class="flex flex-row my-16 mx-auto max-w-3xl">
 	{#if readyToMint}
 		{#if fetchedImageUrl}
 			<img class="w-48 h-48" src={fetchedImageUrl} />
@@ -258,6 +258,6 @@
 			>
 		</div>
 	{:else}
-		<p class:hidden={$user?.network?.name !== 'rinkeby'}>Analyzing NFT...</p>
+		<p class:hidden={$user?.network?.nickname !== 'rinkeby'}>Analyzing NFT...</p>
 	{/if}
 </div>

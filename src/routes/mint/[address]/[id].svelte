@@ -23,6 +23,8 @@
 
 	// TODO: This needs to switch with networks
 	let network = 'rinkeby';
+	// TODO: mainnet address too and switching between them
+	let mementoContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
 
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
@@ -37,11 +39,13 @@
 		}
 
 		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
+		// console.log('moralis: ', moralisData);
 		originalTokenUri = moralisData.token_uri;
 
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
 		const metadata = JSON.parse(moralisData.metadata);
 		newMetadata['originalTokenMetadata'] = metadata;
+		newMetadata['name'] = `(Memento) ${metadata.name}`;
 		newMetadata[
 			'description'
 		] = `This is a Forever721 Memento™ of NFT ${metadata.name} at block #${blockNumber}`;
@@ -52,6 +56,8 @@
 
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
+
+		// console.log('newmetadata: ', newMetadata);
 
 		fetchedImageUrl = metadata.image;
 
@@ -146,20 +152,15 @@
 	}
 
 	async function mint() {
-		console.log('mint');
-		// TODO: mint with newTokenURI
+		let contract = new ethers.Contract(mementoContractAddress, mementoAbi, $user.signer);
+		let txn = await contract.snapshot(originalContractAddress, originalTokenId, newTokenURI);
+		let result = await txn.wait();
 
-		let rinkebyContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
+		console.log('result:', result);
 
-		let saddness = new ethers.Contract(rinkebyContractAddress, mementoAbi, $user.signer);
-		let resultOfSadness = await saddness.snapshot(
-			originalContractAddress,
-			originalTokenId,
-			newTokenURI
-		);
-		let resultOfWaitingOnSadness = await resultOfSadness.wait();
-
-		console.log('result:', resultOfWaitingOnSadness);
+		//
+		// TODO: Show a success here
+		//
 
 		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
 		// 	(f) => f.event === 'SnapshotCreated'

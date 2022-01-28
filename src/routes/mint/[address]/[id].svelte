@@ -18,7 +18,6 @@
 	let originalTokenId = $page.params.id;
 	let originalTokenUri = '';
 	let evaluation;
-
 	let ipfsNode;
 
 	// TODO: This needs to switch with networks
@@ -28,6 +27,11 @@
 
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
+
+		// Early Exit if not on right network
+		if ($user.network.name !== 'rinkeby') {
+			return;
+		}
 
 		// https://discuss.ipfs.io/t/js-ipfs-broke-error-unhandled-rejection-lockexistserror-lock-already-being-held-for-file-ipfs-repo-lock/11172/6
 		ipfsNode = await Ipfs.create({ repo: 'ok' + Math.random() });
@@ -39,7 +43,6 @@
 		}
 
 		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
-		// console.log('moralis: ', moralisData);
 		originalTokenUri = moralisData.token_uri;
 
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
@@ -56,8 +59,6 @@
 
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
-
-		// console.log('newmetadata: ', newMetadata);
 
 		fetchedImageUrl = metadata.image;
 
@@ -117,7 +118,7 @@
 	}
 
 	async function getMoralisData(contractAddress, tokenId) {
-		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${network}&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${$user.network.id}&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {
@@ -184,6 +185,19 @@
 	</div>
 </div>
 
+{#if $user?.network?.name !== 'rinkeby'}
+	<div class="bg-pink-700 text-white text-2xl py-8">
+		<div class="max-w-4xl m-auto px-3 my-8">
+			<div class="flex items-center mb-8">
+				<div class="heading text-5xl flex-grow">⚠️ WARNING ⚠️</div>
+				<div class="heading text-md flex-grow">
+					This contract is only deployed to Rinkeby! <br />Check back soon for mainnet.
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <div class="flex flex-row mt-16 mx-auto max-w-3xl">
 	{#if readyToMint}
 		{#if fetchedImageUrl}
@@ -244,6 +258,6 @@
 			>
 		</div>
 	{:else}
-		<p>Analyzing NFT...</p>
+		<p class:hidden={$user?.network?.name !== 'rinkeby'}>Analyzing NFT...</p>
 	{/if}
 </div>

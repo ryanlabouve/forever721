@@ -1,28 +1,33 @@
 <script lang="ts">
+	import InfoCard from '$lib/ui/info-card.svelte';
 	let metaData = [
 		{
 			label: 'Good',
 			color: 'green',
 			illo: '',
-			heading: 'All data on chain',
-			example: '',
-			description: 'All of the metadata '
+			heading: 'All meta data on chain',
+			exampleLink: 'https://opensea.io/assets/0x25ed58c027921e14d86380ea2646e3a1b5c55a8b/5056',
+			exampleLabel: 'Devs for the Revolution',
+			description:
+				'This is the best option that ensures all of your data is immutable and permenate'
 		},
 		{
-			label: 'Good',
-			color: 'green',
+			label: 'Okay',
+			color: 'yellow',
 			illo: '',
-			heading: 'Data stored immutably',
+			heading: 'Meta data stored on IPFS',
 			example: '',
-			description: 'IPFS'
+			description:
+				'This provides a durable and distributed version of your meta data. Mostly good, but there are some risks.'
 		},
 		{
-			label: 'Good',
-			color: 'green',
+			label: 'Sketchy',
+			color: 'red',
 			illo: '',
-			heading: 'Metadata off-chain',
+			heading: 'Data stored on personal server',
 			example: '',
-			description: 'Centralized servers'
+			description:
+				'Great risk here. One month of someone foretting to pay their AWS bill and your NFT is gone.'
 		}
 	];
 
@@ -31,25 +36,29 @@
 			label: 'Good',
 			color: 'green',
 			illo: '',
-			heading: 'All data on chain',
-			example: '',
-			description: 'All of the metadata '
+			heading: 'All storage on chain',
+			exampleLink: 'https://opensea.io/assets/0x25ed58c027921e14d86380ea2646e3a1b5c55a8b/5056',
+			exampleLabel: 'Devs for the Revolution',
+			description:
+				'The physical bits of the NFT are also on chain. This is typically cost-prohibitive, but the absolute best'
 		},
 		{
-			label: 'Good',
-			color: 'green',
+			label: 'Okay',
+			color: 'yellow',
 			illo: '',
-			heading: 'Data stored immutably',
+			heading: 'Image stored on IPFS',
 			example: '',
-			description: 'IPFS'
+			description:
+				'This provides a durable and distributed version of your meta data. Mostly good, but there are some risks.'
 		},
 		{
-			label: 'Good',
-			color: 'green',
+			label: 'Sketchy',
+			color: 'red',
 			illo: '',
-			heading: 'Metadata off-chain',
+			heading: 'Image on personal server',
 			example: '',
-			description: 'Centralized servers'
+			description:
+				'Great risk here. One month of someone foretting to pay their AWS bill and your NFT is gone.'
 		}
 	];
 </script>
@@ -71,18 +80,26 @@
 				When you are buying an NFT, the value is in the metadata. Ensuring the meatadata is stored
 				immutably and durably is key
 			</blockquote>
-			<div>More about grading</div>
+			<h3>What makes an NFT durable?</h3>
+			<h4>
+				<a href="https://opensea.io/blog/guides/non-fungible-tokens/#On-chain_vs_off-chain"
+					>Metadata</a
+				>
+			</h4>
 			<div class="grid grid-cols-3 gap-3">
-				<div>Holder</div>
+				{#each metaData as d}
+					<InfoCard {...d} />
+				{/each}
 			</div>
-			<div>
-				<div class="text-xl">About grading</div>
-				<div>
-					Metadata https://opensea.io/blog/guides/non-fungible-tokens/#On-chain_vs_off-chain
-				</div>
-				<div>
-					Storage https://opensea.io/blog/guides/non-fungible-tokens/#Off-chain_storage_solutions
-				</div>
+			<h4>
+				<a href="https://opensea.io/blog/guides/non-fungible-tokens/#Off-chain_storage_solutions">
+					Storage
+				</a>
+			</h4>
+			<div class="grid grid-cols-3 gap-3">
+				{#each storage as d}
+					<InfoCard {...d} />
+				{/each}
 			</div>
 
 			<h3>References</h3>

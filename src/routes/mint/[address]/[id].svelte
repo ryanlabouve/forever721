@@ -237,7 +237,10 @@
 				</div>
 			</div>
 
-			<button on:click={mint}>Mint</button>
+			<button
+				class="w-32 items-center px-4.5 py-2.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-zinc-600 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
+				on:click={mint}>Mint</button
+			>
 		</div>
 	{:else}
 		<p>Analyzing NFT...</p>

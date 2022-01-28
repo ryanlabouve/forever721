@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
 import { user } from '$lib/stores/user';
 import { get } from 'svelte/store';
+import { chainIdToNetwork } from './network-info';
 
 let web3Modal;
 
@@ -30,9 +31,13 @@ async function connectWallet(): Promise<UserStore> {
   const signer = provider.getSigner();
   const walletAddress = await signer.getAddress();
   const walletENSAddress = await provider.lookupAddress(walletAddress);
+  const chainId = window?.ethereum?.chainId;
+  const network = chainIdToNetwork(chainId);
+
   const userStore: UserStore = {
     walletAddress,
     walletENSAddress,
+    network,
     provider,
     signer
   };

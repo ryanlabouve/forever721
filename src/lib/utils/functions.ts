@@ -192,14 +192,13 @@ export async function getTokenUriType(tokenUri: string): Promise<string> {
     const metadataStr = atob(cleanBase64(tokenUri))
 
     try {
-      /*const metadata = */JSON.parse(metadataStr)
+      JSON.parse(metadataStr)
       return 'embedded';
     } catch (e) {
       console.error(e)
       return 'other';
     }
   } else {
-    console.log("it is url")
     const [url, uriType/*, urlObj*/] = getResolvableUrl(tokenUri)
     const metadataStr = await getMetadataFromUrl(url)
     try {
@@ -211,7 +210,7 @@ export async function getTokenUriType(tokenUri: string): Promise<string> {
         return 'http';
       }
     } catch (e) {
-      console.error("it is not json")
+      console.error(e)
       return 'other';
     }
   }

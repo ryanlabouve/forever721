@@ -5,7 +5,7 @@
 			label: 'Good',
 			color: 'green',
 			illo: '',
-			heading: 'All meta data on chain',
+			heading: 'All metadata on chain',
 			exampleLink: 'https://opensea.io/assets/0x25ed58c027921e14d86380ea2646e3a1b5c55a8b/5056',
 			exampleLabel: 'Devs for the Revolution',
 			description:
@@ -15,10 +15,10 @@
 			label: 'Okay',
 			color: 'yellow',
 			illo: '',
-			heading: 'Meta data stored on IPFS',
+			heading: 'Metadata stored on IPFS',
 			example: '',
 			description:
-				'This provides a durable and distributed version of your meta data. Mostly good, but there are some risks.'
+				'This provides a durable and distributed version of your metadata. Mostly good, but there are some risks.'
 		},
 		{
 			label: 'Sketchy',
@@ -49,7 +49,7 @@
 			heading: 'Image stored on IPFS',
 			example: '',
 			description:
-				'This provides a durable and distributed version of your meta data. Mostly good, but there are some risks.'
+				'This provides a durable and distributed version of your metadata. Mostly good, but there are some risks.'
 		},
 		{
 			label: 'Sketchy',

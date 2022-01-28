@@ -1,7 +1,69 @@
 import fetch from 'cross-fetch'
+// import { browser } from '$app/env'
+const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+const isNode=new Function("try {return this===global;}catch(e){return false;}");
 
 const ipfsGetEndpoint = "https://ipfs.io/ipfs/"
 const base64Regex = new RegExp("^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$")
+
+export const ImageGrade = {
+  Unknown: 0, Green: 1, Yellow: 2, Red: 3
+}
+export function nftGradeText(_grade) {
+  switch(_grade) {
+    case ImageGrade.Green: return "Green";
+    case ImageGrade.Yellow: return "Yellow";
+    case ImageGrade.Red: return "Red";
+    default: return "Unknown";
+  }
+}
+
+export const UriType = {
+  Unknown: 0, PrivateServer: 1, IpfsLink: 2, OnChain: 3
+}
+export function uriTypeText(_type) {
+  switch(_type) {
+    case UriType.PrivateServer: return "tokenUri contains only link to private server";
+    case UriType.IpfsLink: return "tokenUri is IPFS link";
+    case UriType.OnChain: return "Metadata stored in tokenUri (on-chain)";
+    default: return "Does not match any known tokenUri patterns";
+  }
+}
+
+export const ImageLocation ={
+  Unknown: 0, PrivateServer: 1, Ipfs: 2, Arweave: 3, InMetadata: 4
+}
+export function imageLocationText(_grade) {
+  switch(_grade) {
+    case ImageLocation.InMetadata: return "Image is embedded in metadata";
+    case ImageLocation.Ipfs: return "Image is hosted on IPFS";
+    case ImageLocation.Arweave: return "Image is hosted on Arweave";
+    case ImageLocation.PrivateServer: return "Image is hosted on private server";
+    default: return "Image does not match known pattern";
+  }
+}
+
+export function ImageEvaluation(_grade, _location) {
+  this.image_grade = _grade;
+  this.image_location =_location
+}
+
+export function NftEvaluation(_grade, _uri_type, _location, _metadata) {
+  this.image_grade = _grade;
+  this.uri_type = _uri_type;
+  this.image_location =_location;
+  this.nft_metadata = _metadata;
+}
+
+
+
+export function decodeBase64(_in) {
+  if (isBrowser()) {
+    return atob(cleanBase64(_in));
+  }  else {
+    return Buffer.from(_in, 'base64').toString();
+  }
+}
 
 // return structure is a tuple of:
 // [<evaluation>, [<reason>, <reason>, ...], { <metadata JSON> }]
@@ -10,18 +72,18 @@ export async function evaluateNft(tokenUri) {
 
   if (isBase64(tokenUri)) {
     console.log("it is base64")
-    const metadataStr = atob(cleanBase64(tokenUri))
+    const metadataStr = decodeBase64(cleanBase64(tokenUri))
     console.log(metadataStr)
 
     try {
       const metadata = JSON.parse(metadataStr)
       console.log("it is json")
-      const [imageEvaluation, imageMessage] = evaluateImage(metadata)
-      return [imageEvaluation, ["Metadata stored in TokenURI (on-chain)", imageMessage], metadata]
+      const evaluation = evaluateImage(metadata)
+      return new NftEvaluation(evaluation.image_grade, UriType.OnChain, evaluation.image_location, metadata);
     } catch (e) {
       console.log(e)
       console.log("it is not json")
-      return ["Unknown", ["Does not match any known TokenURI patterns"], null]
+      return new NftEvaluation(ImageGrade.Unknown, UriType.Unknown, ImageLocation.Unknown, null);
     }
   } else {
     console.log("it is url")
@@ -35,44 +97,41 @@ export async function evaluateNft(tokenUri) {
       console.log("it is json")
 
       if (protocol === "ipfs") {
-        const [imageEvaluation, imageMessage] = evaluateImage(metadata)
-        return [imageEvaluation, ["TokenURI is IPFS link", imageMessage], metadata]
+        const evaluation = evaluateImage(metadata)
+        return new NftEvaluation(evaluation.image_grade, UriType.IpfsLink, evaluation.image_location, metadata);
       } else {
-        return ["Red", ["TokenURI contains only link to private server"], metadata]
+        return new NftEvaluation(ImageGrade.Red, UriType.PrivateServer, ImageLocation.PrivateServer, metadata);
       }
     } catch (e) {
-      console.log("it is not json")
-      return ["Unknown", ["Does not match any known TokenURI patterns"], null]
+      console.log("it is not json");
+      return new NftEvaluation(ImageGrade.Unknown, UriType.Unknown, ImageLocation.Unknown, null);
     }
   }
 }
 
 function evaluateImage(metadata) {
-  let imageMessage
-  let evaluation
+
   if (typeof metadata.image === "string" && metadata.image.startsWith("data:image")) {
-    imageMessage = "Image is embedded in metadata"
-    evaluation = "Green"
-  } else {
-    const [url, protocol, hostname] = getResolvableUrl(metadata.image)
-    if (protocol === "ipfs") {
-      imageMessage = "Image is hosted on IPFS"
-      evaluation = "Green"
-    } else if (protocol === "http") {
-      // TODO this is a proxy for arweave, need to support direct arweave support
-      if (hostname === "arweave.net") {
-        imageMessage = "Image is hosted on Arweave"
-        evaluation = "Green"
-      } else {
-        imageMessage = "Image is hosted on private server"
-        evaluation = "Red"
-      }
-    } else {
-      imageMessage = "Image does not match known pattern"
-      evaluation = "Yellow"
-    }
+    return new ImageEvaluation(ImageGrade.Green, ImageLocation.InMetadata);
   }
-  return [evaluation, imageMessage]
+
+  const [url, protocol, hostname] = getResolvableUrl(metadata.image)
+  if (protocol === "ipfs")
+    return new ImageEvaluation(ImageGrade.Green, ImageLocation.Ipfs);
+
+  if (protocol === "http") {
+    // TODO this is a proxy for arweave, need to support direct arweave support
+    if (hostname === "arweave.net") {
+      return new ImageEvaluation(ImageGrade.Green, ImageLocation.Arweave);
+    }
+
+    // if not arweave then it's a private server
+    return new ImageEvaluation(ImageGrade.Red, ImageLocation.PrivateServer);
+
+  }
+
+  // if we get here then could not classify the image location
+  return [ImageGrade.Yellow, ImageLocation.Unknown]
 }
 
 export function isBase64(str) {
@@ -89,7 +148,9 @@ function cleanBase64(str) {
 }
 
 async function getMetadataFromUrl(url) {
-  if (url?.split("://").length !== 2) return {}; // TODO: do this better
+  if (url?.split("://").length !== 2)
+    return ""; // TODO: do this better
+
   const response = await fetch(url)
   return response.text() // can we just .json instead?
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { evaluateNft } from './utils/functions';
+	import { evaluateNft, Grade } from './utils/functions';
 
 	// if you want to properly export them you can do this
 	export let metadata;
@@ -11,8 +11,8 @@
 
 	console.log('tokenuri: ', token_uri);
 
-	let evaluation;
 	let grade;
+	let grade_text;
 
 	let token_id;
 
@@ -21,8 +21,9 @@
 	onMount(async () => {
 		token_id = token_uri.split('/').slice(-1).join(''); // TODO: do this less terribly
 
-		evaluation = await evaluateNft(token_uri);
-		grade = evaluation.grade_text.toLowerCase();
+		const evaluation = await evaluateNft(token_uri);
+		grade = evaluation.grade;
+		grade_text = evaluation.grade_text;
 		evaluations = [evaluation.uri_type_text, evaluation.image_location_text];
 	});
 </script>
@@ -41,12 +42,12 @@
 			<div class="heading">Our Evaluation</div>
 			<div
 				class:text-gray-600={!grade}
-				class:text-green-600={grade == 'green'}
-				class:text-orange-600={grade == 'yellow'}
-				class:text-red-600={grade == 'red'}
+				class:text-green-600={grade == Grade.Green}
+				class:text-orange-600={grade == Grade.Yellow}
+				class:text-red-600={grade == Grade.Red}
 				class="capitalize"
 			>
-				{grade}
+				{grade_text}
 			</div>
 
 			<ul class="my-4">

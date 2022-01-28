@@ -21,6 +21,9 @@
 
 	let ipfsNode;
 
+	// TODO: This needs to switch with networks
+	let network = 'rinkeby';
+
 	onMount(async () => {
 		if (window && window.ethereum?.selectedAddress) connectWallet();
 
@@ -108,7 +111,7 @@
 	}
 
 	async function getMoralisData(contractAddress, tokenId) {
-		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=eth&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${network}&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {

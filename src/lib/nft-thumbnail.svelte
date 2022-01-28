@@ -5,6 +5,7 @@
 	// if you want to properly export them you can do this
 	export let metadata;
 	export let image_url;
+	export let token_id;
 	export let token_uri;
 	export let token_address;
 	export let name = metadata.name;
@@ -14,13 +15,9 @@
 	let grade;
 	let grade_text;
 
-	let token_id;
-
 	let evaluations = [];
 
 	onMount(async () => {
-		token_id = token_uri.split('/').slice(-1).join(''); // TODO: do this less terribly
-
 		const evaluation = await evaluateNft(token_uri);
 		grade = evaluation.grade;
 		grade_text = evaluation.grade_text;

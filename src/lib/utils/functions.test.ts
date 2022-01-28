@@ -1,7 +1,7 @@
 import { isBase64,
   evaluateNft,
   NftEvaluation,
-  ImageGrade,
+  Grade,
   UriType,
   ImageLocation } from './functions';
 
@@ -31,9 +31,10 @@ const g_lazy_lions_metadata = {
 }
 const g_lazy_lions_expected_evaluation =
     new NftEvaluation(
-        ImageGrade.Red,
+        Grade.Red,
+        Grade.Green,
         UriType.PrivateServer,
-        ImageLocation.PrivateServer,
+        ImageLocation.Ipfs,
         g_lazy_lions_metadata
     );
 
@@ -43,7 +44,8 @@ const g_alpacadabra_metadata = {
 }
 const g_alpacadabra_evaluation =
     new NftEvaluation(
-        ImageGrade.Green,
+        Grade.Green,
+        Grade.Green,
         UriType.IpfsLink,
         ImageLocation.Ipfs,
         g_alpacadabra_metadata
@@ -52,7 +54,8 @@ const g_alpacadabra_evaluation =
 const g_devs_for_revs_metadata = {"name": "Dev #3364"}
 const g_devs_for_revs_evaluation =
     new NftEvaluation(
-        ImageGrade.Green,
+        Grade.Green,
+        Grade.Green,
         UriType.OnChain,
         ImageLocation.InMetadata,
         g_devs_for_revs_metadata
@@ -113,7 +116,7 @@ describe("evaluateNft", function () {
   test('#evaluateNft', async () => {
 
     const all_nft_examples = [g_lazy_lions_label, g_alpacadabra_label, g_devs_for_revolution_label];
-    // const all_nft_examples = [g_lazy_lions_label];
+    //const all_nft_examples = [g_lazy_lions_label];
 
     for(let ex_index = 0; ex_index < all_nft_examples.length; ex_index++) {
       const nft_example = all_nft_examples[ex_index];

@@ -181,41 +181,38 @@ export async function getImageType(imageValue) {
 export function getURLFromURI(uri) {
   // this code is adapted from CheckMyNFT
   const ipfsGateway = 'https://ipfs.moralis.io:2053/ipfs/';
-  try {
-    if (!uri) {
-      throw 'no uri';
-    }
-    // if correct URI we get the protocol
-    let url = new URL(uri);
-    // if protocol other IPFS -- get the ipfs hash
 
-    if (url.protocol === 'data:') {
-      return url;
-    }
-
-    if (url.protocol === 'ipfs:') {
-      let ipfsHash;
-      // ipfs://ipfs/Qm
-      if (url.href.includes('ipfs://ipfs/')) {
-        ipfsHash = url.href.replace('ipfs://ipfs/', '');
-      } else {
-        // ipfs://<ipfs hash>
-        ipfsHash = url.href.replace('ipfs://', '');
-      }
-      return ipfsGateway + ipfsHash;
-    }
-
-    if (url.pathname.includes('ipfs')) {
-      // /ipfs/QmTtbYLMHaSqkZ7UenwEs9Sri6oUjQgnagktJSnHeWY8iG
-      let ipfsHash = url.pathname.replace('/ipfs/', '');
-      return ipfsGateway + ipfsHash;
-    }
-
-    // otherwise it's a centralized uri
-    return uri;
-  } catch (e) {
-    throw e;
+  if (!uri) {
+    throw 'no uri';
   }
+  // if correct URI we get the protocol
+  let url = new URL(uri);
+  // if protocol other IPFS -- get the ipfs hash
+
+  if (url.protocol === 'data:') {
+    return url;
+  }
+
+  if (url.protocol === 'ipfs:') {
+    let ipfsHash;
+    // ipfs://ipfs/Qm
+    if (url.href.includes('ipfs://ipfs/')) {
+      ipfsHash = url.href.replace('ipfs://ipfs/', '');
+    } else {
+      // ipfs://<ipfs hash>
+      ipfsHash = url.href.replace('ipfs://', '');
+    }
+    return ipfsGateway + ipfsHash;
+  }
+
+  if (url.pathname.includes('ipfs')) {
+    // /ipfs/QmTtbYLMHaSqkZ7UenwEs9Sri6oUjQgnagktJSnHeWY8iG
+    let ipfsHash = url.pathname.replace('/ipfs/', '');
+    return ipfsGateway + ipfsHash;
+  }
+
+  // otherwise it's a centralized uri
+  return uri;
 }
 
 export function prettyAddress(address) {

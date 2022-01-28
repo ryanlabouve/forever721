@@ -11,6 +11,10 @@
 	let errorPreparingMint = false;
 	let readyToMint = false;
 	let newTokenURI = '';
+	let transactionStarted: boolean = false;
+	let successfullyMinted: boolean = false;
+	let transactionHash: string;
+	let newTokenId: string;
 
 	let newMetadata = {};
 	let fetchedImageUrl;
@@ -18,7 +22,6 @@
 	let originalTokenId = $page.params.id;
 	let originalTokenUri = '';
 	let evaluation;
-
 	let ipfsNode;
 
 	// TODO: This needs to switch with networks
@@ -27,7 +30,12 @@
 	let mementoContractAddress = '0x9774e5c56573C2Faa4ce0D976Edf8486868BdB72';
 
 	onMount(async () => {
-		if (window && window.ethereum?.selectedAddress) connectWallet();
+		if (window && window.ethereum?.selectedAddress) await connectWallet();
+
+		// Early Exit if not on right network
+		if ($user.network.nickname !== 'rinkeby') {
+			return;
+		}
 
 		// https://discuss.ipfs.io/t/js-ipfs-broke-error-unhandled-rejection-lockexistserror-lock-already-being-held-for-file-ipfs-repo-lock/11172/6
 		ipfsNode = await Ipfs.create({ repo: 'ok' + Math.random() });
@@ -39,7 +47,6 @@
 		}
 
 		const moralisData = await getMoralisData(originalContractAddress, originalTokenId);
-		// console.log('moralis: ', moralisData);
 		originalTokenUri = moralisData.token_uri;
 
 		// First, get the token metadata (i.e. result of calling tokenURI and fetching)
@@ -56,8 +63,6 @@
 
 		newMetadata['image_url'] = ipfsImageUrl;
 		newMetadata['image'] = getPolaroidVersion(ipfsImageUrl);
-
-		// console.log('newmetadata: ', newMetadata);
 
 		fetchedImageUrl = metadata.image;
 
@@ -117,7 +122,7 @@
 	}
 
 	async function getMoralisData(contractAddress, tokenId) {
-		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${network}&format=decimal`;
+		let url = `https://deep-index.moralis.io/api/v2/nft/${contractAddress}/${tokenId}?chain=${$user.network.id}&format=decimal`;
 
 		let options: RequestInit = {
 			headers: {
@@ -152,27 +157,23 @@
 	}
 
 	async function mint() {
+		transactionStarted = true;
+
 		let contract = new ethers.Contract(mementoContractAddress, mementoAbi, $user.signer);
 		let txn = await contract.snapshot(originalContractAddress, originalTokenId, newTokenURI);
 		let result = await txn.wait();
 
+		transactionStarted = false;
 		console.log('result:', result);
 
-		//
-		// TODO: Show a success here
-		//
-
-		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
-		// 	(f) => f.event === 'SnapshotCreated'
-		// );
-
-		// resultOfWaitingOnSadness.to
-		// resultOfWaitingOnSadness.transactionHash
-		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
-
-		// Show a success by reacitng to Emit
+		// TODO: If not an owner, test failure is try/catch or something else?
+		let success = result.events.some((f) => f.event === 'Transfer');
+		let tokenId = result.events[0].args[2];
+		mementoContractAddress;
+		successfullyMinted = true;
+		transactionHash = txn.hash;
+		newTokenId = tokenId;
+		// TODO: Do a better success screen
 	}
 </script>
 
@@ -184,8 +185,21 @@
 	</div>
 </div>
 
-<div class="flex flex-row mt-16 mx-auto max-w-3xl">
-	{#if readyToMint}
+{#if $user?.network?.nickname !== 'rinkeby'}
+	<div class="bg-pink-700 text-white text-2xl py-8">
+		<div class="max-w-4xl m-auto px-3 my-8">
+			<div class="flex items-center mb-8">
+				<div class="heading text-5xl flex-grow">⚠️ WARNING ⚠️</div>
+				<div class="heading text-md flex-grow">
+					This contract is only deployed to Rinkeby! <br />Check back soon for mainnet.
+				</div>
+			</div>
+		</div>
+	</div>
+{/if}
+
+<div class="flex flex-row my-16 mx-auto max-w-3xl">
+	{#if readyToMint && !successfullyMinted}
 		{#if fetchedImageUrl}
 			<img class="w-48 h-48" src={fetchedImageUrl} />
 		{:else}
@@ -240,10 +254,40 @@
 
 			<button
 				class="w-32 items-center px-4.5 py-2.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-zinc-600 hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500"
-				on:click={mint}>Mint</button
+				on:click={() => !transactionStarted && mint()}
 			>
+				{#if transactionStarted}
+					⏳ Minting (check metamask)
+				{:else}
+					Mint
+				{/if}
+			</button>
 		</div>
 	{:else}
-		<p>Analyzing NFT...</p>
+		<p class:hidden={$user?.network?.nickname !== 'rinkeby' || successfullyMinted}>
+			Analyzing NFT...
+		</p>
+	{/if}
+
+	{#if successfullyMinted}
+		<div>
+			Minted successfully! View on <a
+				class="lonk"
+				href={`https://rinkeby.etherscan.io/tx/${transactionHash}`}
+				target="_blank">Etherscan</a
+			>
+			or
+			<a
+				class="lonk"
+				href={`https://testnets.opensea.io/assets/${mementoContractAddress}/${newTokenId}`}
+				target="_blank">OpenSea</a
+			>.
+		</div>
 	{/if}
 </div>
+
+<style>
+	.lonk {
+		@apply text-blue-500 underline;
+	}
+</style>

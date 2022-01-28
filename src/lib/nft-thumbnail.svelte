@@ -22,8 +22,8 @@
 		token_id = token_uri.split('/').slice(-1).join(''); // TODO: do this less terribly
 
 		evaluation = await evaluateNft(token_uri);
-		grade = evaluation[0].toLowerCase();
-		evaluations = evaluation[1];
+		grade = evaluation.grade_text.toLowerCase();
+		evaluations = [evaluation.uri_type_text, evaluation.image_location_text];
 	});
 </script>
 

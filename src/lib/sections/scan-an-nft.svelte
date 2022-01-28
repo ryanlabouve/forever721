@@ -66,7 +66,10 @@
 		let nftContract: Contract = new ethers.Contract(nftContractAddress, defaultAbi, $user.provider);
 		let tokenUri = await nftContract.tokenURI(tokenId);
 
-		[grade, reasons, metaData] = await evaluateNft(tokenUri);
+                evaluation = await evaluateNft(tokenUri);
+                grade = evaluation.grade_text;
+                reasons = [evaluation.uri_type_text, evaluation.image_location_text];
+                metaData = evaluation.metadata;
 
 		imageLoaded = true;
 	}

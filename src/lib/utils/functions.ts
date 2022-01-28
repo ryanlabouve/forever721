@@ -11,7 +11,7 @@ export const Grade = {
 }
 export function nftGradeText(grade) {
   switch (grade) {
-    case Grade.Green: return "Standard";
+    case Grade.Green: return "Great";
     case Grade.Yellow: return "Caution";
     case Grade.Red: return "Warning";
     default: return "Unknown";

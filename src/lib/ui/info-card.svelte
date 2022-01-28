@@ -25,7 +25,7 @@
 	</div>
 	<div class="text-xs">
 		{#if exampleLink && exampleLabel}
-			Exmaple: <a href={exampleLink}>{exampleLabel}</a>
+			Example: <a href={exampleLink}>{exampleLabel}</a>
 		{/if}
 	</div>
 </div>

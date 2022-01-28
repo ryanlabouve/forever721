@@ -9,7 +9,7 @@
 			exampleLink: 'https://opensea.io/assets/0x25ed58c027921e14d86380ea2646e3a1b5c55a8b/5056',
 			exampleLabel: 'Devs for the Revolution',
 			description:
-				'This is the best option that ensures all of your data is immutable and permenate'
+				'This is the best option that ensures all of your data is immutable and permanent.'
 		},
 		{
 			label: 'Okay',
@@ -27,7 +27,7 @@
 			heading: 'Data stored on personal server',
 			example: '',
 			description:
-				'Great risk here. One month of someone foretting to pay their AWS bill and your NFT is gone.'
+				'High risk. One month of someone forgetting to pay their AWS bill and your NFT is gone.'
 		}
 	];
 
@@ -58,7 +58,7 @@
 			heading: 'Image on personal server',
 			example: '',
 			description:
-				'Great risk here. One month of someone foretting to pay their AWS bill and your NFT is gone.'
+				'High risk. One month of someone forgetting to pay their AWS bill and your NFT is gone.'
 		}
 	];
 </script>
@@ -73,13 +73,21 @@
 				<div>
 					<div>↳ Help people new to NFTs understand what they are buying</div>
 					<div>↳ Provide an accessible technical view of your NFT collection</div>
-					<div>↳ Provide an easy backup solution for mementos and redundancy</div>
+					<div>↳ Provide an easy backup solution to improve NFT durability and snapshot an NFT at a point in time.</div>
 				</div>
 			</div>
 			<blockquote>
-				When you are buying an NFT, the value is in the metadata. Ensuring the meatadata is stored
-				immutably and durably is key
+				When you are buying an NFT, the meaning is in the metadata. Ensuring the metadata is stored
+				immutably and durably is key to enjoying your NFTs for years to come. 
 			</blockquote>
+			<div class="mb-4">
+				<div class="text-xl">What is a Memento?</div>
+				<div>
+					<div>↳ A memento is a snapshot of your NFT, and is itself an NFT viewable in your wallet.</div>
+					<div>↳ If the original NFT's metadata is lost or changed, the Memento is a backup using IPFS storage. </div>
+					<div>↳ For dynamic NFTs, or NFTs that you later sell, it's a memory of what the NFT looked like. </div>
+				</div>
+			</div>
 			<h3>What makes an NFT durable?</h3>
 			<h4>
 				<a href="https://opensea.io/blog/guides/non-fungible-tokens/#On-chain_vs_off-chain"

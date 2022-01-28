@@ -116,7 +116,6 @@ describe("evaluateNft", function () {
   test('#evaluateNft', async () => {
 
     const all_nft_examples = [g_lazy_lions_label, g_alpacadabra_label, g_devs_for_revolution_label];
-    //const all_nft_examples = [g_lazy_lions_label];
 
     for(let ex_index = 0; ex_index < all_nft_examples.length; ex_index++) {
       const nft_example = all_nft_examples[ex_index];

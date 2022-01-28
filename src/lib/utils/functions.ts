@@ -31,11 +31,11 @@ export enum UriType {
 
 export function uriTypeText(type: UriType): string {
   switch (type) {
-    case UriType.PrivateServer: return "TokenUri contains only link to private server";
-    case UriType.IpfsLink: return "TokenUri is IPFS link";
-    case UriType.ArweaveLink: return "TokenUri is Arweave link";
-    case UriType.OnChain: return "Metadata stored in TokenUri (on-chain)";
-    default: return "Does not match any known tokenUri patterns";
+    case UriType.PrivateServer: return "tokenURI contains only link to private server";
+    case UriType.IpfsLink: return "tokenURI is IPFS link";
+    case UriType.ArweaveLink: return "tokenURI is Arweave link";
+    case UriType.OnChain: return "Metadata stored in tokenURI (on-chain)";
+    default: return "Does not match any known tokenURI patterns";
   }
 }
 
@@ -95,6 +95,7 @@ export async function evaluateNft(tokenUri) {
       // if metadata on-chain, overall grade is whatever the image grade is
       return new NftEvaluation(evaluation.image_grade, evaluation.image_grade, UriType.OnChain, evaluation.image_location, metadata);
     } catch (e) {
+      console.error(e);
       return new NftEvaluation(Grade.Unknown, Grade.Unknown, UriType.OnChain, ImageLocation.Unknown, null);
     }
   } else {
@@ -107,6 +108,7 @@ export async function evaluateNft(tokenUri) {
       const evaluation = evaluateImage(metadata)
       return new NftEvaluation(Math.min(uriGrade, evaluation.image_grade), evaluation.image_grade, uriType, evaluation.image_location, metadata);
     } catch (e) {
+      console.error(e);
       return new NftEvaluation(uriGrade, Grade.Unknown, uriType, ImageLocation.Unknown, null);
     }
   }

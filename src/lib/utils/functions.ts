@@ -44,7 +44,8 @@ export enum ImageLocation {
   PrivateServer,
   Ipfs,
   Arweave,
-  InMetadata
+  InMetadata,
+  MetadataError
 }
 
 export function imageLocationText(location: ImageLocation): string {
@@ -53,6 +54,7 @@ export function imageLocationText(location: ImageLocation): string {
     case ImageLocation.Ipfs: return "Image is hosted on IPFS";
     case ImageLocation.Arweave: return "Image is hosted on Arweave";
     case ImageLocation.PrivateServer: return "Image is hosted on private server";
+    case ImageLocation.MetadataError: return "Unable to read metadata"
     default: return "Image does not match known pattern";
   }
 }
@@ -96,12 +98,19 @@ export async function evaluateNft(tokenUri) {
       return new NftEvaluation(evaluation.image_grade, evaluation.image_grade, UriType.OnChain, evaluation.image_location, metadata);
     } catch (e) {
       console.error(e);
-      return new NftEvaluation(Grade.Unknown, Grade.Unknown, UriType.OnChain, ImageLocation.Unknown, null);
+      return new NftEvaluation(Grade.Unknown, Grade.Unknown, UriType.OnChain, ImageLocation.MetadataError, null);
     }
   } else {
     const [url, uriType, urlObj] = getResolvableUrl(tokenUri)
-    const metadataStr = await getMetadataFromUrl(url)
     const uriGrade = gradeUriType(uriType);
+
+    let metadataStr
+    try {
+      metadataStr = await getMetadataFromUrl(url)
+    } catch (e) {
+      console.log(e)
+      return new NftEvaluation(Math.min(uriGrade, Grade.Unknown), Grade.Unknown, uriType, ImageLocation.MetadataError, null)
+    }
 
     try {
       const metadata = JSON.parse(metadataStr)

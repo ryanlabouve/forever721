@@ -195,8 +195,8 @@
 			</div>
 
 			<ul class="mt-2 mb-4">
-				<li class="text-sm">{evaluation.image_location_text}</li>
 				<li class="text-sm">{evaluation.uri_type_text}</li>
+				<li class="text-sm">{evaluation.image_location_text}</li>
 			</ul>
 
 			<div>

@@ -1,21 +1,19 @@
 <script lang="ts">
-	import { ethers } from 'ethers';
 	import { onMount } from 'svelte';
 	import { env } from '$lib/constants';
 	import { user } from '$lib/stores/user';
-	import dummyNftCollection from '$lib/dummyNftCollection';
 	import NftThumbnail from '$lib/nft-thumbnail.svelte';
-	import defaultAbi from '$lib/defaultAbi';
 	import { getURLFromURI } from '$lib/utils/functions';
 
 	import Button from '$lib/ui/button.svelte';
+
 	import ScanAnNft from '$lib/sections/scan-an-nft.svelte';
 	import LearnMore from '$lib/sections/learn-more.svelte';
+	import Debug from '$lib/sections/debug.svelte';
+
 	import { connectWallet } from '$lib/utils/connect-wallet';
 	import { readLS, writeLS } from '$lib/local-storage';
 
-	let contractAddress: string = '0x8943c7bac1914c9a7aba750bf2b6b09fd21037e0';
-	let contractABI: string = '';
 	let collection = [];
 
 	// TODO: This needs to switch with networks
@@ -26,22 +24,6 @@
 		if (window?.ethereum?.selectedAddress) connectWallet();
 		if (window?.location?.host === 'localhost:3000') allowDebug = true;
 	});
-
-	async function getABI() {
-		let etherscanURL = `http://api.etherscan.io/api?module=contract&action=getabi&address=${contractAddress}&apikey=${env.etherscanKey}`;
-		try {
-			let response = await fetch(etherscanURL);
-
-			if (!response.ok) {
-				throw 'Error calling etherscan';
-			}
-
-			let json = await response.json();
-			contractABI = json.result;
-		} catch (e) {
-			console.error(e);
-		}
-	}
 
 	async function loadCollection() {
 		// Example wallet with decent # of NFTs
@@ -77,48 +59,6 @@
 				}
 			];
 		}, []);
-	}
-
-	async function readNFT() {
-		let randoNFT = dummyNftCollection[0];
-		let saddness = new ethers.Contract(
-			randoNFT.primary_asset_contracts[0].address,
-			defaultAbi,
-			$user.provider
-		);
-
-		let a = await saddness.tokenURI(5);
-		debugger;
-	}
-
-	async function tryDopp() {
-		// Params:
-		let walletAddress = $user.walletAddress;
-		let dopContractAddress = '0x823CFCe3571e2f3E7897e5E6B1082170bfbFED2d';
-		// Contract address
-		let contractAddress = '0x6eee7ca9d7c541081ac35f8d995698f9a51ec89e';
-		let tokenId = '1';
-
-		// Doing:
-		// Load ABI
-		// Call dopp contract with params
-		let dopAbi;
-		let saddness = new ethers.Contract(dopContractAddress, dopAbi, $user.signer);
-		let resultOfSadness = await saddness.snapshot(contractAddress, tokenId);
-		let resultOfWaitingOnSadness = await resultOfSadness.wait();
-
-		// let waitingOnSaddnessWorked = resultOfWaitingOnSadness.events.include(
-		// 	(f) => f.event === 'SnapshotCreated'
-		// );
-
-		// resultOfWaitingOnSadness.to
-		// resultOfWaitingOnSadness.transactionHash
-		// new token id? resultOfWaitingOnSadness.events[0].args[2] ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[0].tokenId ==> 0x02
-		// new token id? resultOfWaitingOnSadness.events[1].args[1] ==> 0x02
-
-		debugger;
-		// Show a success by reacitng to Emit
 	}
 </script>
 
@@ -174,23 +114,7 @@
 <LearnMore />
 
 {#if allowDebug}
-	<div class="bg-pink-300 py-8">
-		<div class="max-w-3xl m-auto px-3 ">
-			<div class="text-2xl text-white">DEBUG</div>
-			<Button onClick={connectWallet}>Connect Wallet and get tokenuri</Button>
-			<Button onClick={() => loadCollection()}>Load Collection</Button>
-			<Button onClick={() => readNFT()}>Read metadata from NFT</Button>
-			<Button onClick={() => tryDopp()}>Try to make a doppleganger</Button>
-			<div>
-				<input
-					type="checkbox"
-					checked={!!readLS('debugMode')}
-					on:click={() => writeLS('debugMode', !readLS('debugMode'))}
-				/>
-				Debug Mode
-			</div>
-		</div>
-	</div>
+	<Debug {loadCollection} />
 {/if}
 
 <div class="py-8">
